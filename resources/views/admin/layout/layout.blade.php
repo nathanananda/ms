@@ -75,7 +75,7 @@
                                 class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'admin.laporan.pemberhentian' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Pemberhentian</a>
                         </li>
                         <li><a href="{{ route('admin.laporan.persetujuan') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">Persetujuan</a>
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'admin.laporan.persetujuan' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Persetujuan</a>
                         </li>
                     </ul>
                 </li>
@@ -111,11 +111,11 @@
                     <!-- Child Menu -->
                     <ul x-show="openMenu === 2" x-collapse class="ml-16 mt-1 space-y-1 text-sm">
                         <li><a href="{{ route('admin.karyawan.list', ['status' => 'all']) }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">List
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'admin.karyawan.list' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">List
                                 Karyawan</a>
                         </li>
                         <li><a href="{{ route('admin.karyawan.onboarding') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">List
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'admin.karyawan.onboarding' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">List
                                 On
                                 Boarding</a>
                         </li>
@@ -125,7 +125,7 @@
                                 Boarding</a>
                         </li>
                         <li><a href="{{ route('admin.karyawan.tambah-karyawan') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">Tambah
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'admin.karyawan.tambah-karyawan' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Tambah
                                 Karyawan</a>
                         </li>
                     </ul>
@@ -169,8 +169,27 @@
                     <i class="fa-solid fa-bell text-lg"></i>
                 </a>
                 <div class="flex justify-between items-center space-x-2">
-                    <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-8 h-8 rounded-full"
-                        alt="">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $count = count($parts);
+                        $initials = '';
+
+                        if ($count >= 2) {
+                            // Ambil huruf pertama dari 2 kata terakhir
+                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
+                        } else {
+                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            {{ $initials }}
+                        </div>
+                    </div>
                     <div class="text-sm font-GabaritoRegular">
                         <p class="">Admin</p>
                         <p>{{ session('name') }}</p>

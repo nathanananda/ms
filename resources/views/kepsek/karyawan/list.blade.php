@@ -113,7 +113,7 @@
                                             <td class="px-4 py-2">Semua Field</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="check-all-field" type="checkbox" name="field[]" required
+                                                    <input id="check-all-field" type="checkbox" name="field[]"
                                                         value="all-field"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -124,7 +124,7 @@
                                             <td class="px-4 py-2">Data Pribadi</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="default-checkbox" type="checkbox" name="field" required
+                                                    <input id="default-checkbox" type="checkbox" name="field"
                                                         value="data-pribadi"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -135,7 +135,7 @@
                                             <td class="px-4 py-2">Alamat</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="default-checkbox" type="checkbox" name="field" required
+                                                    <input id="default-checkbox" type="checkbox" name="field"
                                                         value="alamat"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -146,7 +146,7 @@
                                             <td class="px-4 py-2">Kontak Darurat</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="default-checkbox" type="checkbox" name="field" required
+                                                    <input id="default-checkbox" type="checkbox" name="field"
                                                         value="kontak-darurat"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -157,7 +157,7 @@
                                             <td class="px-4 py-2">Kepegawaian</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">`
-                                                    <input id="default-checkbox" type="checkbox" name="field[]" required
+                                                    <input id="default-checkbox" type="checkbox" name="field[]"
                                                         value="kepegawaian"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -168,7 +168,7 @@
                                             <td class="px-4 py-2">Penggajian</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="default-checkbox" type="checkbox" name="field[]" required
+                                                    <input id="default-checkbox" type="checkbox" name="field[]"
                                                         value="penggajian"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -179,7 +179,7 @@
                                             <td class="px-4 py-2">Kontrak</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="default-checkbox" type="checkbox" name="field[]" required
+                                                    <input id="default-checkbox" type="checkbox" name="field[]"
                                                         value="kontrak"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -190,7 +190,7 @@
                                             <td class="px-4 py-2">Pendidikan</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="default-checkbox" type="checkbox" name="field[]" required
+                                                    <input id="default-checkbox" type="checkbox" name="field[]"
                                                         value="pendidikan"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 field-checkbox">
                                                 </div>
@@ -201,7 +201,7 @@
                                             <td class="px-4 py-2">Semua Data</td>
                                             <td class="px-4 py-2">
                                                 <div class="flex items-center mb-4">
-                                                    <input id="check-all-data" type="checkbox" value="all-data" required
+                                                    <input id="check-all-data" type="checkbox" value="all-data"
                                                         name="banyak-data[]"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 data-checkbox">
                                                 </div>
@@ -213,7 +213,7 @@
                                                 <td class="px-4 py-2">{{ $a->status_karyawan }}</td>
                                                 <td class="px-4 py-2">
                                                     <input id="default-checkbox" type="checkbox"
-                                                        value="{{ $a->status_karyawan }}" name="banyak-data[]" required
+                                                        value="{{ $a->id_status_karyawan }}" name="banyak-data[]"
                                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 data-checkbox">
                                                 </td>
                                             </tr>

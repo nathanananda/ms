@@ -64,6 +64,7 @@ class AdminLaporanController extends Controller
         return response()->json($karyawan);
     }
 
+
     public function perpanjangIndex()
     {
         $listKaryawan = Karyawan::select(
@@ -316,6 +317,12 @@ class AdminLaporanController extends Controller
         return view('admin.laporan.persetujuan', [
             'dataPengajuan' => $dataPengajuan
         ]);
+    }
+
+
+    public function detailPersetujuan($id)
+    {
+
     }
 
     public function approvalPerubahanData(Request $request)

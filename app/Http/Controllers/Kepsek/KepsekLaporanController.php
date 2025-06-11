@@ -325,6 +325,34 @@ class KepsekLaporanController extends Controller
         ]);
     }
 
+    public function detailPersetujuan($id)
+    {
+        if (empty($id)) {
+            return redirect()->back()->with('toast_error', 'Invalid Data !');
+        }
+        $dataKaryawan = Karyawan::select(
+            'karyawan.id_karyawan',
+            'karyawan.nama_lengkap',
+            'k.nik_karyawan',
+            'msk.status_karyawan',
+            'mj.jabatan',
+            'kon.tipe_kontrak',
+            'kon.awal_kontrak',
+            'kon.akhir_kontrak',
+            'kon.file_kontrak',
+            'kon.uuid as id_kontrak'
+        )->join('kepegawaian as k', 'k.id_karyawan', '=', 'karyawan.id_karyawan')
+            ->join('master_status_karyawan as msk', 'k.id_status_karyawan', '=', 'msk.id_status_karyawan')
+            ->join('master_jabatan as mj', 'k.id_jabatan', '=', 'mj.id_jabatan')
+            ->join('kontrak_karyawan as kon', 'kon.id_karyawan', '=', 'k.id_karyawan')
+            ->where('kon.status_kontrak', 0)
+            ->where('kon.uuid', $id)->first();
+
+        return view('kepsek.laporan.detailPersetujuan.detail-persetujuan', [
+            'dataKaryawan' => $dataKaryawan
+        ]);
+    }
+
     public function approvalPerpanjangIndex($id)
     {
         if (empty($id)) {
@@ -395,7 +423,7 @@ class KepsekLaporanController extends Controller
                 'approval_kepsek' => 2
             ]);
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_success', 'Penambahan Karyawan Berhasil Disetujui !');
-        } catch ( \Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_error', 'Penambahan Karyawan Gagal Disetujui ! : ' . $e->getMessage());
         }
     }

@@ -59,13 +59,13 @@ class KepsekKaryawanController extends Controller
 
 
         $StatusAll = MasterStatusKaryawan::all();
-        $StatusAll = Karyawan::join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
+        $dataStatus = Karyawan::join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
             ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
             ->where('karyawan.status_aktif', true)
             ->select('master_status_karyawan.status_karyawan', DB::raw('count(*) as total'))
             ->groupBy('master_status_karyawan.status_karyawan')
             ->get();
-        $totalAll = $StatusAll->sum('total');
+        $totalAll = $dataStatus->sum('total');
 
 
 
@@ -624,11 +624,12 @@ class KepsekKaryawanController extends Controller
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Siapkan header sesuai field
+        // Header awal
         $headers = ['ID', 'Nama Lengkap'];
 
-        if (in_array('kepegawaian', $fields)) {
-            $headers = array_merge($headers, [
+        // Daftar header dinamis
+        $fieldHeaders = [
+            'kepegawaian' => [
                 'NIK Karyawan',
                 'Email Kantor',
                 'Status Karyawan',
@@ -636,38 +637,42 @@ class KepsekKaryawanController extends Controller
                 'Departemen',
                 'Divisi',
                 'Jabatan'
-            ]);
-        }
-
-        if (in_array('penggajian', $fields)) {
-            $headers = array_merge($headers, [
+            ],
+            'penggajian' => [
                 'Kode Golongan',
                 'NPWP',
                 'No Rekening',
                 'No BPJS Kesehatan',
                 'No BPJS Ketenagakerjaan',
                 'No BPJS Pensiun'
-            ]);
-        }
-
-        if (in_array('kontrak', $fields)) {
-            $headers = array_merge($headers, ['Awal Kontrak', 'Tanggal Kontrak']);
-        }
-
-        if (in_array('pendidikan', $fields)) {
-            $headers = array_merge($headers, ['Tingkat Pendidikan', 'Institusi', 'Jurusan', 'Gelar', 'Tahun Masuk', 'Tahun Lulus', 'Nilai']);
-        }
-
-        if (in_array('kontak-darurat', $fields)) {
-            $headers = array_merge($headers, ['Nama Kontak Darurat', 'Hubungan', 'No Kontak Darurat']);
-        }
-
-        if (in_array('alamat', $fields)) {
-            $headers = array_merge($headers, ['Alamat', 'Provinsi', 'Kota', 'Kecamatan', 'Kelurahan', 'Kode Pos']);
-        }
-
-        if (in_array('data-pribadi', $fields)) {
-            $headers = array_merge($headers, [
+            ],
+            'kontrak' => [
+                'Awal Kontrak',
+                'Tanggal Kontrak'
+            ],
+            'pendidikan' => [
+                'Tingkat Pendidikan',
+                'Institusi',
+                'Jurusan',
+                'Gelar',
+                'Tahun Masuk',
+                'Tahun Lulus',
+                'Nilai'
+            ],
+            'kontak-darurat' => [
+                'Nama Kontak Darurat',
+                'Hubungan',
+                'No Kontak Darurat'
+            ],
+            'alamat' => [
+                'Alamat',
+                'Provinsi',
+                'Kota',
+                'Kecamatan',
+                'Kelurahan',
+                'Kode Pos'
+            ],
+            'data-pribadi' => [
                 'Jenis Kelamin',
                 'No KTP',
                 'No HP',
@@ -676,175 +681,225 @@ class KepsekKaryawanController extends Controller
                 'Status Nikah',
                 'Tempat Lahir',
                 'Tanggal Lahir'
-            ]);
+            ]
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($fieldHeaders[$field])) {
+                $headers = array_merge($headers, $fieldHeaders[$field]);
+            }
         }
 
         $sheet->fromArray($headers, null, 'A1');
 
-        // Query dinamis
+        // Query dasar
         $query = Karyawan::query()
             ->where('karyawan.status_aktif', 1)
             ->select('karyawan.id_karyawan', 'karyawan.nama_lengkap');
 
-        if (in_array('kepegawaian', $fields)) {
-            $query->addSelect(
-                'peg.nik_karyawan',
-                'peg.email_kantor',
-                'msk.status_karyawan',
-                'ms.nama_section',
-                'md.nama_departemen',
-                'mdv.nama_divisi',
-                'mj.jabatan'
-            )
-                ->join('kepegawaian as peg', 'peg.id_karyawan', '=', 'karyawan.id_karyawan')
-                ->join('master_section as ms', 'ms.id_section', '=', 'peg.id_section')
-                ->join('master_departemen as md', 'md.id_departemen', '=', 'ms.id_departemen')
-                ->join('master_divisi as mdv', 'mdv.id_divisi', '=', 'md.id_divisi')
-                ->join('master_jabatan as mj', 'mj.id_jabatan', '=', 'peg.id_jabatan')
-                ->join('master_status_karyawan as msk', 'msk.id_status_karyawan', '=', 'peg.id_status_karyawan');
+        // Flags agar join tidak berulang
+        $joined = [];
+
+        // Join dan select dinamis
+        foreach ($fields as $field) {
+            switch ($field) {
+                case 'kepegawaian':
+                    if (!isset($joined['kepegawaian'])) {
+                        $query->addSelect(
+                            'peg.nik_karyawan',
+                            'peg.email_kantor',
+                            'msk.status_karyawan',
+                            'ms.nama_section',
+                            'md.nama_departemen',
+                            'mdv.nama_divisi',
+                            'mj.jabatan'
+                        )
+                            ->join('kepegawaian as peg', 'peg.id_karyawan', '=', 'karyawan.id_karyawan')
+                            ->join('master_section as ms', 'ms.id_section', '=', 'peg.id_section')
+                            ->join('master_departemen as md', 'md.id_departemen', '=', 'ms.id_departemen')
+                            ->join('master_divisi as mdv', 'mdv.id_divisi', '=', 'md.id_divisi')
+                            ->join('master_jabatan as mj', 'mj.id_jabatan', '=', 'peg.id_jabatan')
+                            ->join('master_status_karyawan as msk', 'msk.id_status_karyawan', '=', 'peg.id_status_karyawan');
+                        $joined['kepegawaian'] = true;
+                    }
+                    break;
+
+                case 'penggajian':
+                    if (!isset($joined['penggajian'])) {
+                        $query->addSelect(
+                            'gaji.kode_golongan',
+                            'gaji.npwp',
+                            'gaji.no_rekening',
+                            'gaji.no_bpjs_kesehatan',
+                            'gaji.no_bpjs_ketenagakerjaan',
+                            'gaji.no_bpjs_pensiun'
+                        )
+                            ->leftJoin('penggajian as gaji', 'gaji.id_karyawan', '=', 'karyawan.id_karyawan');
+                        $joined['penggajian'] = true;
+                    }
+                    break;
+
+                case 'kontrak':
+                    if (!isset($joined['kontrak'])) {
+                        $query->addSelect('kontrak.awal_kontrak', 'kontrak.akhir_kontrak')
+                            ->leftJoin('kontrak_karyawan as kontrak', 'kontrak.id_karyawan', '=', 'karyawan.id_karyawan');
+                        $joined['kontrak'] = true;
+                    }
+                    break;
+
+                case 'pendidikan':
+                    if (!isset($joined['pendidikan'])) {
+                        $query->addSelect(
+                            'pen.tingkat_pendidikan',
+                            'pen.institusi',
+                            'pen.jurusan',
+                            'pen.gelar',
+                            'pen.tahun_masuk',
+                            'pen.tahun_lulus',
+                            'pen.nilai'
+                        )
+                            ->leftJoin('riwayat_pendidikan as pen', 'pen.id_karyawan', '=', 'karyawan.id_karyawan');
+                        $joined['pendidikan'] = true;
+                    }
+                    break;
+
+                case 'kontak-darurat':
+                    if (!isset($joined['kontak-darurat'])) {
+                        $query->addSelect('kd.nama_kontak', 'kd.hubungan', 'kd.no_kontak')
+                            ->leftJoin('kontak_darurat as kd', 'kd.id_karyawan', '=', 'karyawan.id_karyawan');
+                        $joined['kontak-darurat'] = true;
+                    }
+                    break;
+
+                case 'alamat':
+                    if (!isset($joined['alamat'])) {
+                        $query->addSelect(
+                            'al.alamat',
+                            'mp.nama_provinsi',
+                            'mkota.nama_kota',
+                            'mc.nama_kecamatan',
+                            'mk.nama_kelurahan',
+                            'al.kode_pos'
+                        )
+                            ->leftJoin('alamat as al', 'al.id_karyawan', '=', 'karyawan.id_karyawan')
+                            ->leftJoin('master_kelurahan as mk', 'mk.id_kelurahan', '=', 'al.id_kelurahan')
+                            ->leftJoin('master_kecamatan as mc', 'mc.id_kecamatan', '=', 'mk.id_kecamatan')
+                            ->leftJoin('master_kota as mkota', 'mkota.id_kota', '=', 'mc.id_kota')
+                            ->leftJoin('master_provinsi as mp', 'mp.id_provinsi', '=', 'mkota.id_provinsi');
+                        $joined['alamat'] = true;
+                    }
+                    break;
+
+                case 'data-pribadi':
+                    if (!isset($joined['data-pribadi'])) {
+                        $query->addSelect(
+                            'karyawan.jenis_kelamin',
+                            'karyawan.no_ktp',
+                            'karyawan.no_hp',
+                            'karyawan.email_pribadi',
+                            'karyawan.agama',
+                            'karyawan.status_nikah',
+                            'karyawan.tempat_lahir',
+                            'karyawan.tanggal_lahir'
+                        );
+                        $joined['data-pribadi'] = true;
+                    }
+                    break;
+            }
         }
 
-        if (in_array('penggajian', $fields)) {
-            $query->addSelect(
-                'gaji.kode_golongan',
-                'gaji.npwp',
-                'gaji.no_rekening',
-                'gaji.no_bpjs_kesehatan',
-                'gaji.no_bpjs_ketenagakerjaan',
-                'gaji.no_bpjs_pensiun'
-            )
-                ->join('penggajian as gaji', 'gaji.id_karyawan', '=', 'karyawan.id_karyawan');
+        // Join peg jika ada filter status
+        if (!empty($statusList) && !isset($joined['kepegawaian'])) {
+            $query->join('kepegawaian as peg', 'peg.id_karyawan', '=', 'karyawan.id_karyawan');
+            $joined['kepegawaian'] = true;
         }
 
-        if (in_array('kontrak', $fields)) {
-            $query->addSelect('kontrak.awal_kontrak', 'kontrak.akhir_kontrak')
-                ->join('kontrak_karyawan as kontrak', 'kontrak.id_karyawan', '=', 'karyawan.id_karyawan');
-        }
-
-        if (in_array('pendidikan', $fields)) {
-            $query->addSelect(
-                'pen.tingkat_pendidikan',
-                'pen.institusi',
-                'pen.jurusan',
-                'pen.gelar',
-                'pen.tahun_masuk',
-                'pen.tahun_lulus',
-                'pen.nilai'
-            )
-                ->leftJoin('riwayat_pendidikan as pen', 'pen.id_karyawan', '=', 'karyawan.id_karyawan');
-        }
-
-        if (in_array('kontak-darurat', $fields)) {
-            $query->addSelect('kd.nama_kontak', 'kd.hubungan', 'kd.no_kontak')
-                ->leftJoin('kontak_darurat as kd', 'kd.id_karyawan', '=', 'karyawan.id_karyawan');
-        }
-
-        if (in_array('alamat', $fields)) {
-            $query->addSelect(
-                'al.alamat',
-                'mp.nama_provinsi',
-                'mkota.nama_kota',
-                'mc.nama_kecamatan',
-                'mk.kelurahan',
-                'al.kode_pos'
-            )
-                ->leftJoin('alamat as al', 'al.id_karyawan', '=', 'karyawan.id_karyawan')
-                ->join('master_kelurahan as mk', 'mk.id_kelurahan', '=', 'al.id_kelurahan')
-                ->join('master_kecamatan as mc', 'mc.id_kecamatan', '=', 'mk.id_kecamatan')
-                ->join('master_kota as mkota', 'mkota.id_kota', '=', 'mc.id_kota')
-                ->join('master_provinsi as mp', 'mp.id_provinsi', '=', 'mkota.id_provinsi');
-        }
-
-        if (in_array('data-pribadi', $fields)) {
-            $query->addSelect(
-                'karyawan.jenis_kelamin',
-                'karyawan.no_ktp',
-                'karyawan.no_hp',
-                'karyawan.email_pribadi',
-                'karyawan.agama',
-                'karyawan.status_nikah',
-                'karyawan.tempat_lahir',
-                'karyawan.tanggal_lahir'
-            );
+        // Filter status karyawan jika diperlukan
+        if (!empty($statusList)) {
+            $query->whereIn('peg.id_status_karyawan', $statusList);
         }
 
         $dataKaryawan = $query->get();
-
-        // Loop isi data
         $row = 2;
+
         foreach ($dataKaryawan as $data) {
-            $rowData = [
-                $data->id_karyawan,
-                $data->nama_lengkap
-            ];
+            $rowData = [$data->id_karyawan, $data->nama_lengkap];
 
-            if (in_array('kepegawaian', $fields)) {
-                $rowData[] = $data->nik_karyawan;
-                $rowData[] = $data->email_kantor;
-                $rowData[] = $data->status_karyawan;
-                $rowData[] = $data->nama_section;
-                $rowData[] = $data->nama_departemen;
-                $rowData[] = $data->nama_divisi;
-                $rowData[] = $data->jabatan;
-            }
+            foreach ($fields as $field) {
+                switch ($field) {
+                    case 'kepegawaian':
+                        $rowData[] = $data->nik_karyawan ?? '';
+                        $rowData[] = $data->email_kantor ?? '';
+                        $rowData[] = $data->status_karyawan ?? '';
+                        $rowData[] = $data->nama_section ?? '';
+                        $rowData[] = $data->nama_departemen ?? '';
+                        $rowData[] = $data->nama_divisi ?? '';
+                        $rowData[] = $data->jabatan ?? '';
+                        break;
 
-            if (in_array('penggajian', $fields)) {
-                $rowData[] = $data->kode_golongan;
-                $rowData[] = $data->npwp;
-                $rowData[] = $data->no_rekening;
-                $rowData[] = $data->no_bpjs_kesehatan;
-                $rowData[] = $data->no_bpjs_ketenagakerjaan;
-                $rowData[] = $data->no_bpjs_pensiun;
-            }
+                    case 'penggajian':
+                        $rowData[] = $data->kode_golongan ?? '';
+                        $rowData[] = $data->npwp ?? '';
+                        $rowData[] = $data->no_rekening ?? '';
+                        $rowData[] = $data->no_bpjs_kesehatan ?? '';
+                        $rowData[] = $data->no_bpjs_ketenagakerjaan ?? '';
+                        $rowData[] = $data->no_bpjs_pensiun ?? '';
+                        break;
 
-            if (in_array('kontrak', $fields)) {
-                $rowData[] = $data->awal_kontrak;
-                $rowData[] = $data->akhir_kontrak;
-            }
+                    case 'kontrak':
+                        $rowData[] = $data->awal_kontrak ?? '';
+                        $rowData[] = $data->akhir_kontrak ?? '';
+                        break;
 
-            if (in_array('pendidikan', $fields)) {
-                $rowData[] = $data->tingkat_pendidikan;
-                $rowData[] = $data->institusi;
-                $rowData[] = $data->jurusan;
-                $rowData[] = $data->gelar;
-                $rowData[] = $data->tahun_masuk;
-                $rowData[] = $data->tahun_lulus;
-                $rowData[] = $data->nilai;
-            }
+                    case 'pendidikan':
+                        $rowData[] = $data->tingkat_pendidikan ?? '';
+                        $rowData[] = $data->institusi ?? '';
+                        $rowData[] = $data->jurusan ?? '';
+                        $rowData[] = $data->gelar ?? '';
+                        $rowData[] = $data->tahun_masuk ?? '';
+                        $rowData[] = $data->tahun_lulus ?? '';
+                        $rowData[] = $data->nilai ?? '';
+                        break;
 
-            if (in_array('kontak-darurat', $fields)) {
-                $rowData[] = $data->nama_kontak;
-                $rowData[] = $data->hubungan;
-                $rowData[] = $data->no_kontak;
-            }
+                    case 'kontak-darurat':
+                        $rowData[] = $data->nama_kontak ?? '';
+                        $rowData[] = $data->hubungan ?? '';
+                        $rowData[] = $data->no_kontak ?? '';
+                        break;
 
-            if (in_array('alamat', $fields)) {
-                $rowData[] = $data->alamat;
-                $rowData[] = $data->nama__provinsi;
-                $rowData[] = $data->nama_kota;
-                $rowData[] = $data->nama_kecamatan;
-                $rowData[] = $data->nama_kelurahan;
-                $rowData[] = $data->kode_pos;
-            }
+                    case 'alamat':
+                        $rowData[] = $data->alamat ?? '';
+                        $rowData[] = $data->nama_provinsi ?? '';
+                        $rowData[] = $data->nama_kota ?? '';
+                        $rowData[] = $data->nama_kecamatan ?? '';
+                        $rowData[] = $data->nama_kelurahan ?? '';
+                        $rowData[] = $data->kode_pos ?? '';
+                        break;
 
-            if (in_array('data-pribadi', $fields)) {
-                $rowData[] = $data->jenis_kelamin;
-                $rowData[] = $data->no_ktp;
-                $rowData[] = $data->no_hp;
-                $rowData[] = $data->email_pribadi;
-                $rowData[] = $data->agama;
-                $rowData[] = $data->status_nikah;
-                $rowData[] = $data->tempat_lahir;
-                $rowData[] = $data->tanggal_lahir;
+                    case 'data-pribadi':
+                        $rowData[] = $data->jenis_kelamin ?? '';
+                        $rowData[] = $data->no_ktp ?? '';
+                        $rowData[] = $data->no_hp ?? '';
+                        $rowData[] = $data->email_pribadi ?? '';
+                        $rowData[] = $data->agama ?? '';
+                        $rowData[] = $data->status_nikah ?? '';
+                        $rowData[] = $data->tempat_lahir ?? '';
+                        $rowData[] = $data->tanggal_lahir ?? '';
+                        break;
+                }
             }
 
             $sheet->fromArray($rowData, null, 'A' . $row);
             $row++;
+
         }
+
+
 
         $writer = new Xlsx($spreadsheet);
         $filename = $request->input('nama_dokumen', 'data_karyawan') . '.xlsx';
 
+        // Output file download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=\"$filename\"");
         $writer->save('php://output');

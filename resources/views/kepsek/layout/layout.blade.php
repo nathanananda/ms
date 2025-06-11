@@ -160,8 +160,27 @@
                     <i class="fa-solid fa-bell text-lg"></i>
                 </a>
                 <div class="flex justify-between items-center space-x-2">
-                    <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-8 h-8 rounded-full"
-                        alt="">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $count = count($parts);
+                        $initials = '';
+
+                        if ($count >= 2) {
+                            // Ambil huruf pertama dari 2 kata terakhir
+                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
+                        } else {
+                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            {{ $initials }}
+                        </div>
+                    </div>
                     <div class="text-sm font-GabaritoRegular">
                         <p class="">Kepsek</p>
                         <p>{{ session('name') }}</p>

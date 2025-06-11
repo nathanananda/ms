@@ -214,8 +214,10 @@ class AdminKaryawanController extends Controller
                 ->join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
                 ->join('master_jabatan', 'master_jabatan.id_jabatan', '=', 'kepegawaian.id_jabatan')
                 ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
-                ->where('karyawan.status_aktif', True)->paginate(12);
-        } else {
+                ->where('karyawan.status_aktif', True)
+                ->where('karyawan.approval_kepsek', 2)
+                ->paginate(12);
+            } else {
             $listData = Karyawan::select(
                 'karyawan.id_karyawan',
                 'karyawan.nama_lengkap',
@@ -226,6 +228,7 @@ class AdminKaryawanController extends Controller
                 ->join('master_jabatan', 'master_jabatan.id_jabatan', '=', 'kepegawaian.id_jabatan')
                 ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
                 ->where('karyawan.status_aktif', True)
+                ->where('karyawan.approval_kepsek', 2)
                 ->where('master_status_karyawan.status_karyawan', $status)->paginate(12);
         }
 

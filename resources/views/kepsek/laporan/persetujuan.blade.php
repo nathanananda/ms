@@ -53,6 +53,11 @@
                         <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">
                             <div class="flex justify-between items-center">
                                 <!-- Tombol Tolak & Modal -->
+                                <a href="{{ route('kepsek.laporan.persetujuan.detail', ['id' => $i->uuid]) }}" class="bg-blue-400 py-1 px-2 rounded text-white" type="button">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+
+                                <!-- Tombol Tolak & Modal -->
                                 <button data-modal-target="modal-tolak-{{ $i->uuid }}"
                                     data-modal-toggle="modal-tolak-{{ $i->uuid }}"
                                     class="bg-red-400 py-1 px-2 rounded text-white" type="button">
@@ -86,7 +91,8 @@
                                             </div>
                                             <!-- Body -->
                                             <div class="p-4 md:p-5 space-y-4">
-                                                <form action="{{ route('kepsek.laporan.persetujuan.reject-kontrak') }}" method="POST">
+                                                <form action="{{ route('kepsek.laporan.persetujuan.reject-kontrak') }}"
+                                                    method="POST">
                                                     @csrf
                                                     <input type="hidden" name="id_kontrak" value="{{ $i->uuid }}">
                                                     <div class="font-GabaritoRegular">
@@ -121,7 +127,7 @@
                                         ]),
                                         'Penambahan' => route('kepsek.laporan.persetujuan.penambahan', [
                                             'id' => $i->uuid,
-                                        ])
+                                        ]),
                                     ];
                                 @endphp
 

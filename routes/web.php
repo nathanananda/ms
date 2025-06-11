@@ -167,6 +167,7 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
                 Route::get('pengangkatan/{id}', [KepsekLaporanController::class, 'approvalPengangkatanIndex'])->name('kepsek.laporan.persetujuan.pengangkatan');
                 Route::get('pemberhentian/{id}', [KepsekLaporanController::class, 'approvalPemberhentianIndex'])->name('kepsek.laporan.persetujuan.pemberhentian');
                 Route::get('penambahan/{id}', [KepsekLaporanController::class, 'approvalPenambahanIndex'])->name('kepsek.laporan.persetujuan.penambahan');
+                Route::get('detaill/{id}', [KepsekLaporanController::class, 'detailPersetujuan'])->name('kepsek.laporan.persetujuan.detail');
 
                 Route::post('kontrak/reject', [KepsekLaporanController::class, 'rejectKontrak'])->name('kepsek.laporan.persetujuan.reject-kontrak');
                 Route::prefix('kontrak/approve')->group(function () {
@@ -269,7 +270,7 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
     Route::get('/get-section/{departemen_id}', [StrukturController::class, 'getSection']);
 
     Route::get('file_kontrak/{file}', function ($file) {
-        $path = 'file_kontrak/' . $file;
+        $path = 'public/file_kontrak/' . $file;
 
         if (!Storage::exists($path)) {
             abort(404);

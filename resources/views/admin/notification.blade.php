@@ -37,9 +37,31 @@
     <div class="tab-content w-full h-fit bg-white space-y-1 rounded-2xl py-3" id="allNotif">
         @foreach ($Notif as $a)
             <div onclick="markAsRead(this)" data-url="{{ route('admin.notification.read', ['id' => $a->id_notif]) }}"
-                class="cursor-pointer w-full h-24 border border-gray-600 p-4 {{ $a->is_read == 1 ? 'bg-green-200' : 'bg-red-200' }}">
+                class="cursor-pointer w-full h-24 border border-gray-600 p-4  {{ $a->type == 1 ? 'bg-[#FFF2E4]' : ($a->type == 2 ? 'bg-[#FFEBEB]' : 'bg-white') }}">
                 <div class="flex justify-start items-center space-x-3">
-                    <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-14 h-14 rounded-full" alt="">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $count = count($parts);
+                        $initials = '';
+
+                        if ($count >= 2) {
+                            // Ambil huruf pertama dari 2 kata terakhir
+                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
+                        } else {
+                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            {{ $initials }}
+                        </div>
+                        <span
+                            class="top-0 left-7 absolute w-3.5 h-3.5 {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
+                    </div>
                     <div>
                         <p class="font-GabaritoMedium text-md">{{ $a->message }}</p>
                         <p class="font-GabaritoRegular text-sm">{{ $a->created_at->diffForHumans() }}</p>
@@ -52,11 +74,32 @@
     {{-- Notifikasi Belum Dibaca --}}
     <div class="tab-content w-full h-fit bg-white space-y-1 rounded-2xl py-3 hidden" id="unreadNotif">
         @foreach ($Notif->where('is_read', 0) as $a)
-            {{-- filter berdasarkan status --}}
-            <div onclick="markAsRead(this)" data-url="{{ route('admin.notification.read', ['id' => $a->id_notif]) }}"
-                class="cursor-pointer w-full h-24 border border-gray-600 p-4 {{ $a->is_read == 1 ? 'bg-green-200' : 'bg-red-200' }}">
+            <div onclick="markAsRead(this)" data-url="{{ route('kepsek.notification.read', ['id' => $a->id_notif]) }}"
+                class="cursor-pointer w-full h-24 border border-gray-600 p-4  {{ $a->type == 1 ? 'bg-[#FFF2E4]' : ($a->type == 2 ? 'bg-[#FFEBEB]' : 'bg-white') }}">
                 <div class="flex justify-start items-center space-x-3">
-                    <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-14 h-14 rounded-full" alt="">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $count = count($parts);
+                        $initials = '';
+
+                        if ($count >= 2) {
+                            // Ambil huruf pertama dari 2 kata terakhir
+                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
+                        } else {
+                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            {{ $initials }}
+                        </div>
+                        <span
+                            class="top-0 left-7 absolute w-3.5 h-3.5 {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
+                    </div>
                     <div>
                         <p class="font-GabaritoMedium text-md">{{ $a->message }}</p>
                         <p class="font-GabaritoRegular text-sm">{{ $a->created_at->diffForHumans() }}</p>

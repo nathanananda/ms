@@ -14,11 +14,13 @@ use App\Models\MasterJabatan;
 use App\Models\MasterProvinsi;
 use App\Models\MasterSection;
 use App\Models\MasterStatusKaryawan;
+use App\Models\Notif;
 use App\Models\Penggajian;
 use App\Models\RiwayatPendidikan;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -38,7 +40,8 @@ class KepsekKaryawanController extends Controller
                 ->join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
                 ->join('master_jabatan', 'master_jabatan.id_jabatan', '=', 'kepegawaian.id_jabatan')
                 ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
-                ->where('karyawan.status_aktif', True)->paginate(12);
+                ->where('karyawan.status_aktif', True)
+                ->where('karyawan.approval_kepsek', 2)->paginate(12);
         } else {
             $listData = Karyawan::select(
                 'karyawan.id_karyawan',
@@ -50,6 +53,7 @@ class KepsekKaryawanController extends Controller
                 ->join('master_jabatan', 'master_jabatan.id_jabatan', '=', 'kepegawaian.id_jabatan')
                 ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
                 ->where('karyawan.status_aktif', True)
+                ->where('karyawan.approval_kepsek', 2)
                 ->where('master_status_karyawan.status_karyawan', $status)->paginate(12);
         }
 
@@ -524,6 +528,7 @@ class KepsekKaryawanController extends Controller
                 $path = $file->storeAs('profile', $filename);
                 $dataKaryawan['foto'] = $filename;
             }
+            $dataKaryawan['approval_karyawan'] = 2;
             Karyawan::create($dataKaryawan);
 
             // Insert Alamat
@@ -600,6 +605,7 @@ class KepsekKaryawanController extends Controller
                 $dataKontrak['file_kontrak'] = $filename;
             }
             KontrakKaryawan::create($dataKontrak);
+
 
             DB::commit();
 
@@ -696,7 +702,6 @@ class KepsekKaryawanController extends Controller
                 ->join('master_divisi as mdv', 'mdv.id_divisi', '=', 'md.id_divisi')
                 ->join('master_jabatan as mj', 'mj.id_jabatan', '=', 'peg.id_jabatan')
                 ->join('master_status_karyawan as msk', 'msk.id_status_karyawan', '=', 'peg.id_status_karyawan');
-
         }
 
         if (in_array('penggajian', $fields)) {

@@ -46,7 +46,7 @@
                     </div>
                     <div class="mb-4">
                         <label for="nama_lengkap" class="block text-sm font-medium text-gray-700">Nama Karyawan</label>
-                        <input type="text" name="nama_lengkap" id="nama_lengkap" disabled
+                        <input type="text" name="nama_lengkap" id="nama_lengkap" readonly
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="mb-4">

@@ -24,7 +24,7 @@
                 <!-- Menu Utama -->
                 <li>
                     <a href="{{ route('kepsek.dashboard') }}"
-                        class="block px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white  {{ Route::current()->getName() == 'admin.dashboard' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">
+                        class="block px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white  {{ Route::current()->getName() == 'kepsek.dashboard' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">
                         <i class="fa-solid fa-chart-line mr-3"></i>
                         Dashboard
                     </a>
@@ -66,7 +66,7 @@
                                 class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.laporan.pemberhentian' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Pemberhentian</a>
                         </li>
                         <li><a href="{{ route('kepsek.laporan.persetujuan') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">Persetujuan</a>
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.laporan.persetujuan' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Persetujuan</a>
                         </li>
                     </ul>
                 </li>
@@ -102,21 +102,21 @@
                     <!-- Child Menu -->
                     <ul x-show="openMenu === 2" x-collapse class="ml-16 mt-1 space-y-1 text-sm">
                         <li><a href="{{ route('kepsek.karyawan.list', ['status' => 'all']) }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">List
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.karyawan.list' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">List
                                 Karyawan</a>
                         </li>
                         <li><a href="{{ route('kepsek.karyawan.onboarding') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">List
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.karyawan.onboarding' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">List
                                 On
                                 Boarding</a>
                         </li>
                         <li><a href="{{ route('kepsek.karyawan.offboarding') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'admin.offboarding' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">List
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.karyawan.offboarding' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">List
                                 Off
                                 Boarding</a>
                         </li>
                         <li><a href="{{ route('kepsek.karyawan.add') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">Tambah
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.karyawan.add' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Tambah
                                 Karyawan</a>
                         </li>
                     </ul>
@@ -136,10 +136,10 @@
                     <!-- Child Menu -->
                     <ul x-show="openMenu === 3" x-collapse class="ml-16 mt-1 space-y-1 text-sm">
                         <li><a href="{{ route('kepsek.profile') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">Overview</a>
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.profile' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Overview</a>
                         </li>
                         <li><a href="{{ route('kepsek.finansial') }}"
-                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white">Finansial</a>
+                                class="block text-base px-4 py-2 hover:bg-[#232A3E] hover:rounded-2xl hover:text-white {{ Route::current()->getName() == 'kepsek.finansial' ? 'bg-[#232A3E] rounded-2xl text-white' : '' }}">Finansial</a>
                         </li>
                     </ul>
                 </li>
@@ -164,7 +164,7 @@
                         alt="">
                     <div class="text-sm font-GabaritoRegular">
                         <p class="">Kepsek</p>
-                        <p>Zoey Ananda</p>
+                        <p>{{ session('name') }}</p>
                     </div>
                 </div>
             </div>

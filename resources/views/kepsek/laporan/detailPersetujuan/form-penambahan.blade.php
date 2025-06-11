@@ -2,7 +2,7 @@
 
 @section('content-user')
     <div class="flex flex-col justify-start my-5">
-        <h3 class="font-GabaritoMedium text-2xl">Pemberhentian Karyawan</h3>
+        <h3 class="font-GabaritoMedium text-2xl">Penambahan Karyawan</h3>
         <nav class="flex" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                 <li class="inline-flex items-center">
@@ -18,20 +18,32 @@
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="m1 9 4-4-4-4" />
                         </svg>
+                        <a href="{{ route('kepsek.laporan.persetujuan') }}"
+                            class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2">Persetujuan</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 9 4-4-4-4" />
+                        </svg>
                         <a href=""
-                            class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2">Pemberhentian</a>
+                            class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2">Perpanjang</a>
                     </div>
                 </li>
             </ol>
         </nav>
     </div>
     <div class="w-full min-h-screen bg-white rounded-xl p-5">
-        <h3 class="font-GabaritoRegular text-2xl">Pemberhentian Karyawan</h3>
+        <h3 class="font-GabaritoRegular text-2xl">Penambahan Karyawan</h3>
+
         <div class="flex justify-between items-start my-5 space-x-3">
             <div class="w-1/2">
                 <div class="mb-4">
                     <label for="nik" class="block text-sm font-medium text-gray-700">NIK Karyawan</label>
-                    <input type="text" name="nik" disabled value="{{ $dataKaryawan->nik_karyawan }}"
+                    <input type="text" name="nik" id="nik" value="{{ $dataKaryawan->nik_karyawan }}" disabled
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="mb-4">
@@ -44,14 +56,14 @@
                     <label for="awal_kontrak" class="block text-sm font-medium text-gray-700">Tanggal Mulai
                         Kontrak</label>
                     <input type="date" name="awal_kontrak" id="awal_kontrak" value="{{ $dataKaryawan->awal_kontrak }}"
-                        required disabled
+                        required
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="mb-4">
                     <label for="akhir_kontrak" class="block text-sm font-medium text-gray-700">Tanggal Berakhir
                         Kontrak</label>
                     <input type="date" name="akhir_kontrak" id="akhir_kontrak" value="{{ $dataKaryawan->akhir_kontrak }}"
-                        required disabled
+                        required
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="mb-4">
@@ -69,7 +81,7 @@
             <div class="w-1/2">
                 @if ($dataKaryawan->file_kontrak != null)
                     <label for="upload_kontrak" class="block text-sm font-medium text-gray-700 mb-2">
-                        Download Dokumen Perpanjang Kontrak
+                        Download Dokumen Kontrak
                     </label>
                     <a href="{{ route('show.file_kontrak', ['file' => $dataKaryawan->file_kontrak]) }}" target="_blank">
                         <label for="upload_kontrak"
@@ -92,15 +104,11 @@
                             </div>
                         </label>
                     </a>
-                @else
-                    <div class="bg-slate-200 w-full h-32 p-5 rounded flex justify-center items-center">
-                        <p class="font-GabaritoRegular">Dokumen Perpanjang Kontrak belum diupload</p>
-                    </div>
                 @endif
             </div>
         </div>
-        <div class="flex justify-end items-center">
-            <form action="{{ route('kepsek.laporan.persetujuan.approve-kontrak-pemberhentian') }}" method="POST">
+        <div class="flex justify-end items-center space-x-5">
+            <form action="{{ route('kepsek.laporan.persetujuan.approve-penambahan-karyawan') }}" method="POST">
                 @csrf
                 <input type="hidden" name="id_karyawan" value="{{ $dataKaryawan->id_karyawan }}">
                 <input type="hidden" name="id_kontrak" value="{{ $dataKaryawan->id_kontrak }}">
@@ -123,28 +131,6 @@
             } else {
                 fileNameDisplay.textContent = 'Tekan di sini untuk upload file!';
             }
-        });
-    </script>
-    <script>
-        new TomSelect('#nik', {
-            placeholder: "Cari NIK...",
-        });
-
-        document.getElementById('nik').addEventListener('change', function() {
-            const idKaryawan = this.value;
-            if (!idKaryawan) return;
-
-            const apiUrl = `/admin/laporan/kontrak/karyawan/detail/${idKaryawan}`;
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('nama_lengkap').value = data.nama_lengkap || '';
-                    document.getElementById('awal_kontrak').value = data.awal_kontrak || '';
-                    document.getElementById('akhir_kontrak').value = data.akhir_kontrak || '';
-                    document.getElementById('jabatan').value = data.jabatan || '';
-                    document.getElementById('status_karyawan').value = data.status_karyawan || '';
-                });
         });
     </script>
 @endsection

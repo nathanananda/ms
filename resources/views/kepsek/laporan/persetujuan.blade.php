@@ -119,6 +119,9 @@
                                         'Pengangkatan' => route('kepsek.laporan.persetujuan.pengangkatan', [
                                             'id' => $i->uuid,
                                         ]),
+                                        'Penambahan' => route('kepsek.laporan.persetujuan.penambahan', [
+                                            'id' => $i->uuid,
+                                        ])
                                     ];
                                 @endphp
 

@@ -13,6 +13,7 @@ use App\Models\MasterStatusKaryawan;
 use App\Models\Notif;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -84,7 +85,7 @@ class AdminLaporanController extends Controller
                 $file = $request->file('file_kontrak');
                 $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 // Simpan ke folder storage/app/profile
-                $path = $file->storeAs('file_kontrak', $filename);
+                $path = $file->storeAs('public/file_kontrak', $filename);
                 $data['file_kontrak'] = $filename;
             }
             $data['uuid'] = Str::uuid();
@@ -92,7 +93,7 @@ class AdminLaporanController extends Controller
             $data['tipe_kontrak'] = 'Perpanjang';
             KontrakKaryawan::create($data);
 
-            $dataKepsek = User::join('karyawan', 'karyawan.id_karyawan', '=', 'user.id_karyawan')->where('users.role', 'kepsek')->get();
+            $dataKepsek = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'kepsek')->get();
             foreach ($dataKepsek as $k) {
                 Notif::create([
                     'id_notif' => Str::uuid(),
@@ -103,9 +104,20 @@ class AdminLaporanController extends Controller
                     'created_at' => now(),
                 ]);
             }
+
+            $dataAdmin = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataAdmin->id_karyawan,
+                'message' => 'Anda Mengajukan Perpanjang Kontrak : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
             return redirect()->route('admin.laporan.perpanjang')->with('toast_success', 'Perpanjang berhasil ditambahkan, menunggu approval kepsek !');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', $e->getMessage());
+            return redirect()->route('admin.laporan.perpanjang')->with('toast_error', $e->getMessage());
         }
     }
 
@@ -125,7 +137,6 @@ class AdminLaporanController extends Controller
             'dataStatus' => $dataStatus
         ]);
     }
-
     public function pengangkatanStore(Request $request)
     {
         DB::beginTransaction();
@@ -177,13 +188,13 @@ class AdminLaporanController extends Controller
                 $file = $request->file('file_kontrak');
                 $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 // Simpan ke folder storage/app/profile
-                $path = $file->storeAs('file_kontrak', $filename);
+                $path = $file->storeAs('public/file_kontrak', $filename);
                 $dataKontrak['file_kontrak'] = $filename;
             }
 
             KontrakKaryawan::create($dataKontrak);
 
-            $dataKepsek = User::join('karyawan', 'karyawan.id_karyawan', '=', 'user.id_karyawan')->where('users.role', 'kepsek')->get();
+            $dataKepsek = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'kepsek')->get();
             foreach ($dataKepsek as $k) {
                 Notif::create([
                     'id_notif' => Str::uuid(),
@@ -194,6 +205,17 @@ class AdminLaporanController extends Controller
                     'created_at' => now(),
                 ]);
             }
+
+            $dataAdmin = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataAdmin->id_karyawan,
+                'message' => 'Anda Mengajukan Pengangkatan Kontrak : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
 
             DB::commit();
             return redirect()->back()->with('toast_success', 'Kontrak pengangkatan berhasil disimpan!');
@@ -231,7 +253,7 @@ class AdminLaporanController extends Controller
                 $file = $request->file('file_kontrak');
                 $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 // Simpan ke folder storage/app/profile
-                $path = $file->storeAs('file_kontrak', $filename);
+                $path = $file->storeAs('public/file_kontrak', $filename);
                 $dataKontrak->file_kontrak = $filename;
             }
             $dataKontrak->save();
@@ -247,7 +269,7 @@ class AdminLaporanController extends Controller
                 'created_at' => now(),
             ]);
 
-            $dataKepsek = User::join('karyawan', 'karyawan.id_karyawan', '=', 'user.id_karyawan')->where('users.role', 'kepsek')->get();
+            $dataKepsek = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'kepsek')->get();
             foreach ($dataKepsek as $k) {
                 Notif::create([
                     'id_notif' => Str::uuid(),
@@ -258,6 +280,17 @@ class AdminLaporanController extends Controller
                     'created_at' => now(),
                 ]);
             }
+
+            $dataAdmin = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataAdmin->id_karyawan,
+                'message' => 'Anda Mengajukan Pemberhentian Kontrak : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
 
             DB::commit();
             return redirect()->back()->with('toast_success', 'Kontrak pemberhentian berhasil disimpan!');
@@ -304,6 +337,7 @@ class AdminLaporanController extends Controller
             } elseif ($data->data_table == 'kepegawaian') {
                 $field = $data->field;
                 $dataKepegawaian = Kepegawaian::where('id_karyawan', $data->id_karyawan)->first();
+
                 $dataKepegawaian->$field = $data->value_baru;
                 $dataKepegawaian->save();
             } else if ($data->data_table == 'kontrak') {

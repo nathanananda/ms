@@ -28,7 +28,9 @@
     </div>
     <div class="w-full min-h-screen bg-white rounded-xl p-5">
         <h3 class="font-GabaritoRegular text-2xl">Pemberhentian Kontrak</h3>
-        <form action="">
+        <form action="{{ route('admin.offboarding.layoff.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="id_karyawan" value="{{ $dataKaryawan->id_karyawan }}">
             <div class="flex justify-between items-start my-5 space-x-3">
                 <div class="w-1/2">
                     <div class="mb-4">
@@ -106,7 +108,7 @@
                             </svg>
                             <p class="font-GabaritoRegular text-sm mt-2" id="file-name">Tekan di sini untuk upload file!</p>
                         </div>
-                        <input id="upload_kontrak" type="file" name="upload_kontrak" class="hidden">
+                        <input id="upload_kontrak" type="file" name="upload_kontrak" class="hidden" accept=".pdf, .word">
                     </label>
                 </div>
             </div>

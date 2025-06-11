@@ -28,18 +28,20 @@
     </div>
     <div class="w-full min-h-screen bg-white rounded-xl p-5">
         <h3 class="font-GabaritoRegular text-2xl">Perpanjang Kontrak</h3>
-        <form action="">
+        <form action="{{ route('admin.offboarding.perpanjang.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="id_karyawan" value="{{ $dataKaryawan->id_karyawan }}">
             <div class="flex justify-between items-start my-5 space-x-3">
                 <div class="w-1/2">
                     <div class="mb-4">
                         <label for="nama_lengkap" class="block text-sm font-medium text-gray-700">Nama Karyawan</label>
-                        <input type="text" name="nama_lengkap" id="nama_lengkap" disabled
+                        <input type="text" name="nama_lengkap" id="nama_lengkap" readonly
                             value="{{ $dataKaryawan->nama_lengkap }}"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div class="mb-4">
                         <label for="nik" class="block text-sm font-medium text-gray-700">NIK Karyawan</label>
-                        <input type="text" name="nik" id="nik" disabled
+                        <input type="text" name="nik" id="nik" readonly
                             value="{{ $dataKaryawan->nik_karyawan }}"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
@@ -89,7 +91,7 @@
                             </svg>
                             <p class="font-GabaritoRegular text-sm mt-2" id="file-name">Tekan di sini untuk upload file!</p>
                         </div>
-                        <input id="upload_kontrak" type="file" name="upload_kontrak" class="hidden">
+                        <input id="upload_kontrak" type="file" name="file_kontrak" class="hidden" accept=".pdf, .word">
                     </label>
                 </div>
             </div>

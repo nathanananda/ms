@@ -15,13 +15,16 @@ use App\Models\MasterJabatan;
 use App\Models\MasterProvinsi;
 use App\Models\MasterSection;
 use App\Models\MasterStatusKaryawan;
+use App\Models\Notif;
 use App\Models\Penggajian;
 use App\Models\RiwayatPendidikan;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class AdminKaryawanController extends Controller
@@ -78,7 +81,7 @@ class AdminKaryawanController extends Controller
                 // Generate nama acak dengan ekstensi asli
                 $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 // Simpan ke folder storage/app/profile
-                $path = $file->storeAs('profile', $filename);
+                $path = $file->storeAs('public/profile', $filename);
                 $dataKaryawan['foto'] = $filename;
             }
             Karyawan::create($dataKaryawan);
@@ -146,17 +149,49 @@ class AdminKaryawanController extends Controller
             $dataKontrak = $request->only(['awal_kontrak', 'akhir_kontrak']);
             $dataKontrak['id_karyawan'] = $idKaryawan;
             $dataKontrak['uuid'] = Str::uuid();
-            $dataKontrak['status_kontrak'] = 1;
+            $dataKontrak['status_kontrak'] = 0;
+            $dataKontrak['tipe_kontrak'] = 'Penambahan';
             if ($request->hasFile('file_kontrak')) {
                 // Ambil file
                 $file = $request->file('file_kontrak');
                 // Generate nama acak dengan ekstensi asli
                 $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 // Simpan ke folder storage/app/profile
-                $path = $file->storeAs('file_kontrak', $filename);
+                $path = $file->storeAs('public/file_kontrak', $filename);
                 $dataKontrak['file_kontrak'] = $filename;
             }
             KontrakKaryawan::create($dataKontrak);
+
+            User::create([
+                'id' => Str::uuid(),
+                'email' => $request->email_pribadi,
+                'password' => Hash::make('AdminSekolah'),
+                'role' => 'user',
+                'is_changepass' => 0,
+            ]);
+
+            $dataKepsek = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'kepsek')->get();
+            foreach ($dataKepsek as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Admin : ' . session('name') . 'Mengajukan Penambahan Karyawan : ' . $request->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataAdmin = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataAdmin->id_karyawan,
+                'message' => 'Anda Mengajukan Penambahan Karyawan : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
 
             DB::commit();
 
@@ -515,7 +550,7 @@ class AdminKaryawanController extends Controller
             $dataProfile = Karyawan::where('id_karyawan', $request->id_karyawan)->first();
             $dataProfile->update($data);
             return redirect()->route('admin.karyawan.update-karyawan', ['id' => $request->id_karyawan])->with('toast_success', 'Profile berhasil diubah !');
-        } catch ( Exception $e) {
+        } catch (Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

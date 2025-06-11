@@ -383,17 +383,17 @@
                 <tbody>
                     <tr class="border-b">
                         <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
-                            Nomor Kontak Darurat</td>
+                            Nama Kontak Darurat</td>
                         <td class="px-4 py-2">
-                            <input type="text" name="nomor_kontak_darurat"
+                            <input type="text" name="nama_kontak_darurat"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </td>
                     </tr>
                     <tr class="border-b">
                         <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
-                            Nama Kontak Darurat</td>
+                            Nomor Kontak Darurat</td>
                         <td class="px-4 py-2">
-                            <input type="text" name="nama_kontak_darurat"
+                            <input type="text" name="nomor_kontak_darurat"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </td>
                     </tr>

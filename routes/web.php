@@ -166,12 +166,14 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
                 Route::get('perpanjang/{id}', [KepsekLaporanController::class, 'approvalPerpanjangIndex'])->name('kepsek.laporan.persetujuan.perpanjang');
                 Route::get('pengangkatan/{id}', [KepsekLaporanController::class, 'approvalPengangkatanIndex'])->name('kepsek.laporan.persetujuan.pengangkatan');
                 Route::get('pemberhentian/{id}', [KepsekLaporanController::class, 'approvalPemberhentianIndex'])->name('kepsek.laporan.persetujuan.pemberhentian');
+                Route::get('penambahan/{id}', [KepsekLaporanController::class, 'approvalPenambahanIndex'])->name('kepsek.laporan.persetujuan.penambahan');
 
                 Route::post('kontrak/reject', [KepsekLaporanController::class, 'rejectKontrak'])->name('kepsek.laporan.persetujuan.reject-kontrak');
                 Route::prefix('kontrak/approve')->group(function () {
                     Route::post('perpanjang', [KepsekLaporanController::class, 'approvePerpanjang'])->name('kepsek.laporan.persetujuan.approve-kontrak');
                     Route::post('pemberhentian', [KepsekLaporanController::class, 'approvePemberhentian'])->name('kepsek.laporan.persetujuan.approve-kontrak-pemberhentian');
                     Route::post('pengangkatan', [KepsekLaporanController::class, 'approvePengangkatan'])->name('kepsek.laporan.persetujuan.approve-kontrak-pengangkatan');
+                    Route::post('penambahan', [KepsekLaporanController::class, 'approvePenambahanKaryawan'])->name('kepsek.laporan.persetujuan.approve-penambahan-karyawan');
                 });
             });
         });
@@ -182,6 +184,8 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
     Route::prefix('admin')->middleware(['isAdmin'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::get('notification', [AdminNotifController::class, 'index'])->name('admin.notification');
+        Route::get('getGender', [AdminDashboardController::class, 'getGender'])->name('admin.getGender');
+        Route::get('getReligion', [AdminDashboardController::class, 'getReligion'])->name('admin.getReligion');
         Route::post('/read/{id}', [AdminNotifController::class, 'updateRead'])->name('admin.notification.read');
 
         Route::prefix('karyawan')->group(function () {
@@ -223,8 +227,11 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
         Route::prefix('offboarding')->group(function () {
             Route::get('/', [AdminOffboardingController::class, 'index'])->name('admin.offboarding');
             Route::post('perpanjang', [AdminOffboardingController::class, 'Perpanjang'])->name('admin.offboarding.perpanjang');
+            Route::post('perpanjang/store', [AdminOffboardingController::class, 'PerpanjangStore'])->name('admin.offboarding.perpanjang.store');
             Route::post('peangkatan', [AdminOffboardingController::class, 'Pengangkatan'])->name('admin.offboarding.pengangkatan');
+            Route::post('peangkatan/store', [AdminOffboardingController::class, 'pengangkatanStore'])->name('admin.offboarding.pengangkatan.store');
             Route::post('layoff', [AdminOffboardingController::class, 'Layoff'])->name('admin.offboarding.layoff');
+            Route::post('layoff/store', [AdminOffboardingController::class, 'pemberhentianStore'])->name('admin.offboarding.layoff.store');
         });
 
         Route::prefix('profile')->group(function () {

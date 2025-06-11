@@ -10,7 +10,10 @@ use App\Models\KontakDarurat;
 use App\Models\KontrakKaryawan;
 use App\Models\MasterJabatan;
 use App\Models\MasterStatusKaryawan;
+use App\Models\Notif;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -76,6 +79,28 @@ class KepsekLaporanController extends Controller
             $data['status_kontrak'] = 1;
             $data['tipe_kontrak'] = 'Perpanjang';
             KontrakKaryawan::create($data);
+
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . 'Memperpanjang Kontrak : ' . $request->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Memperpanjang Kontrak : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
             return redirect()->route('kepsek.laporan.perpanjang')->with('toast_success', 'Kontrak Berhasil Diperpanjang ! ');
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', $e->getMessage());
@@ -165,6 +190,28 @@ class KepsekLaporanController extends Controller
             $dataKepegawaian->id_status_karyawan = $request->id_status_karyawan;
             $dataKepegawaian->save();
 
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . 'Melaakukan Pengangkatan Kontrak : ' . $request->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Melakukan Pengangkatan Kontrak : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
             DB::commit();
             return redirect()->back()->with('toast_success', 'Karyawan berhasil pengangkatan kontrak !');
         } catch (\Exception $e) {
@@ -222,6 +269,28 @@ class KepsekLaporanController extends Controller
             $dataKaryawan->status_aktif = 0;
             $dataKaryawan->tipe_kontrak = 'Nonactive';
             $dataKaryawan->save();
+
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . 'Memberhentikan Kontrak : ' . $request->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Memberhentikan Kontrak : ' . $request->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
 
             DB::commit();
             return redirect()->back()->with('toast_success', 'Kontrak pemberhentian berhasil disimpan!');
@@ -282,6 +351,53 @@ class KepsekLaporanController extends Controller
         return view('kepsek.laporan.detailPersetujuan.form-perpanjang', [
             'dataKaryawan' => $dataKaryawan
         ]);
+    }
+
+    public function approvalPenambahanIndex($id)
+    {
+        if (empty($id)) {
+            return redirect()->back()->with('toast_error', 'Invalid Data !');
+        }
+        $dataKaryawan = Karyawan::select(
+            'karyawan.id_karyawan',
+            'karyawan.nama_lengkap',
+            'k.nik_karyawan',
+            'msk.status_karyawan',
+            'mj.jabatan',
+            'kon.tipe_kontrak',
+            'kon.awal_kontrak',
+            'kon.akhir_kontrak',
+            'kon.file_kontrak',
+            'kon.uuid as id_kontrak'
+        )->join('kepegawaian as k', 'k.id_karyawan', '=', 'karyawan.id_karyawan')
+            ->join('master_status_karyawan as msk', 'k.id_status_karyawan', '=', 'msk.id_status_karyawan')
+            ->join('master_jabatan as mj', 'k.id_jabatan', '=', 'mj.id_jabatan')
+            ->join('kontrak_karyawan as kon', 'kon.id_karyawan', '=', 'k.id_karyawan')
+            ->where('kon.status_kontrak', 0)
+            ->where('kon.uuid', $id)->first();
+
+        return view('kepsek.laporan.detailPersetujuan.form-penambahan', [
+            'dataKaryawan' => $dataKaryawan
+        ]);
+    }
+
+    public function approvePenambahanKaryawan(Request $request)
+    {
+        try {
+            $id = $request->id_kontrak;
+            KontrakKaryawan::where('uuid', $id)->update([
+                'status_kontrak' => 1
+            ]);
+
+            $dataKaryawan = Karyawan::where('id_karyawan', $request->id_karyawan)->first();
+            $dataKaryawan->update([
+                'status_aktif' => True,
+                'approval_kepsek' => 2
+            ]);
+            return redirect()->route('kepsek.laporan.persetujuan')->with('toast_success', 'Penambahan Karyawan Berhasil Disetujui !');
+        } catch ( \Exception $e) {
+            return redirect()->route('kepsek.laporan.persetujuan')->with('toast_error', 'Penambahan Karyawan Gagal Disetujui ! : ' . $e->getMessage());
+        }
     }
 
     public function approvalPengangkatanIndex($id)
@@ -354,10 +470,33 @@ class KepsekLaporanController extends Controller
     public function rejectKontrak(Request $request)
     {
         try {
-            $data = KontrakKaryawan::where('uuid', $request->id_kontrak)->first();
+            $data = KontrakKaryawan::join('karyawan as k', 'k.id_karyawan', '=', 'kontrak_karyawan.id_karyawan')->where('uuid', $request->id_kontrak)->first();
             // dd($request->catatan);
             $data->catatan = $request->catatan;
             $data->save();
+
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . ' Menolak Update Kontrak : ' . $data->nama_lengkap . '. Catatan : ' . $request->catatan,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Menolak Update Kontrak : ' . $data->nama_lengkap . '. Catatan : ' . $request->catatan,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_success', 'Kontrak berhasil ditolak !');
         } catch (\Exception $e) {
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_error', 'Oncurred Error : ' . $e->getMessage());
@@ -373,9 +512,31 @@ class KepsekLaporanController extends Controller
                 $dataKontrakLama->save();
             }
 
-            $dataKontrak = KontrakKaryawan::where('uuid', $request->id_kontrak)->first();
+            $dataKontrak = KontrakKaryawan::join('karyawan as k', 'k.id_karyawan', '=', 'kontrak_karyawan.id_karyawan')->where('uuid', $request->id_kontrak)->first();
             $dataKontrak->status_kontrak = 1;
             $dataKontrak->save();
+
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . ' Menyetujui Perpanjang Kontrak : ' . $dataKontrak->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Menyetujui Perpanjang Kontrak : ' . $dataKontrak->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
 
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_success', 'Perpanjang berhasil disetujui !');
         } catch (\Exception $e) {
@@ -394,6 +555,28 @@ class KepsekLaporanController extends Controller
             $dataKaryawan->status_aktif = 0;
             $dataKaryawan->save();
 
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . 'Menyetujui Pemberhentian Kontrak : ' . $dataKaryawan->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Menyetujui Pemberhentian Kontrak : ' . $dataKaryawan->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_success', 'Pemberhentian berhasil disetujui !');
         } catch (\Exception $e) {
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_error', 'Oncurred Error : ' . $e->getMessage());
@@ -409,22 +592,22 @@ class KepsekLaporanController extends Controller
                 $dataKontrakLama->save();
             }
 
-            $dataKontrak = KontrakKaryawan::where('uuid', $request->id_kontrak)->first();
+            $dataKontrak = KontrakKaryawan::join('karyawan as k', 'k.id_karyawan', '=', 'kontrak_karyawan.id_karyawan')->where('uuid', $request->id_kontrak)->first();
             $dataKontrak->status_kontrak = 1;
             $dataKontrak->save();
 
             $dataHistory = History::where('id_karyawan', $request->id_karyawan)->where('approval', 0)->get();
             foreach ($dataHistory as $item) {
                 $field = $item->field;
-                if ( $item->data_table == 'kepegawaian') {
+                if ($item->data_table == 'kepegawaian') {
                     $dataKepegawaian = Kepegawaian::where('id_karyawan', $item->id_karyawan)->first();
                     $dataKepegawaian->$field = $item->value_baru;
                     $dataKepegawaian->save();
-                } else if ( $item->data_table == 'karyawan') {
+                } else if ($item->data_table == 'karyawan') {
                     $dataKaryawan = Karyawan::where('id_karyawan', $item->id_karyawan)->first();
                     $dataKaryawan->$field = $item->value_baru;
                     $dataKaryawan->save();
-                } else if ( $item->data_table == 'kontak_darurat') {
+                } else if ($item->data_table == 'kontak_darurat') {
                     $dataKontakDarurat = KontakDarurat::where('id_karyawan', $item->id_karyawan)->first();
                     $dataKontakDarurat->$field = $item->value_baru;
                     $dataKontakDarurat->save();
@@ -432,6 +615,29 @@ class KepsekLaporanController extends Controller
                 $item->approval = 2;
                 $item->save();
             }
+
+            $dataAdmin = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'admin')->get();
+            foreach ($dataAdmin as $k) {
+                Notif::create([
+                    'id_notif' => Str::uuid(),
+                    'notif_owner' => $k->id_karyawan,
+                    'message' => 'Kepsek : ' . session('name') . ' Menyetujui Pengangkatan Kontrak : ' . $dataKontrak->nama_lengkap,
+                    'is_read' => 0,
+                    'type' => 2,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $dataKepsek = Karyawan::where('email_pribadi', Auth::user()->email)->first();
+            Notif::create([
+                'id_notif' => Str::uuid(),
+                'notif_owner' => $dataKepsek->id_karyawan,
+                'message' => 'Anda Menyetujui Pengangkatan Kontrak : ' . $dataKontrak->nama_lengkap,
+                'is_read' => 0,
+                'type' => 2,
+                'created_at' => now(),
+            ]);
+
 
             return redirect()->route('kepsek.laporan.persetujuan')->with('toast_success', 'Pengangkatan berhasil disetujui !');
         } catch (\Exception $e) {

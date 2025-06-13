@@ -83,7 +83,8 @@
                         <div class="flex flex-col justify-center items-start">
                             <h3 class="text-xl font-GabaritoRegular">{{ $a->nama_lengkap }}</h3>
                             <h3 class="text-base font-GabaritoRegular">{{ $a->jabatan }}</h3>
-                            <span class="bg-[#F55853] text-white font-GabaritoRegular px-4 rounded-xl">
+                            <span
+                                class="{{ $listWarna[$a->status_karyawan] }} text-white px-4 rounded-xl">
                                 {{ $a->status_karyawan }}
                             </span>
                         </div>

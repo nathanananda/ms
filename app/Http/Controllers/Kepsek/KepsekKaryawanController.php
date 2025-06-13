@@ -68,11 +68,11 @@ class KepsekKaryawanController extends Controller
         $totalAll = $dataStatus->sum('total');
 
 
-
         return view('kepsek.karyawan.list', [
-            'StatusAll' => $StatusAll,
+            'StatusAll' => $dataStatus,
             'listData' => $listData,
-            'totalAll' => $totalAll
+            'totalAll' => $totalAll,
+            'masterStatus' => $StatusAll
         ]);
     }
 
@@ -618,9 +618,12 @@ class KepsekKaryawanController extends Controller
 
     public function ExportExcel(Request $request)
     {
-        $fields = $request->input('field', []);
-        $statusList = $request->input('banyak-data', []);
+        $fields = (array) $request->input('field', []);
+        $statusList = (array) $request->input('banyak-data', []);
 
+        if (in_array('all-data', $statusList)) {
+            $statusList = []; // abaikan filter
+        }
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -797,11 +800,11 @@ class KepsekKaryawanController extends Controller
                             'karyawan.no_ktp',
                             'karyawan.no_hp',
                             'karyawan.email_pribadi',
-                            'karyawan.agama',
+                            'agama.agama',
                             'karyawan.status_nikah',
                             'karyawan.tempat_lahir',
                             'karyawan.tanggal_lahir'
-                        );
+                        )->join('master_agama as agama', 'agama.id_agama', '=', 'karyawan.id_agama');
                         $joined['data-pribadi'] = true;
                     }
                     break;
@@ -891,7 +894,6 @@ class KepsekKaryawanController extends Controller
 
             $sheet->fromArray($rowData, null, 'A' . $row);
             $row++;
-
         }
 
 

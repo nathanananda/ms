@@ -207,7 +207,7 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                        @foreach ($StatusAll as $a)
+                                        @foreach ($masterStatus as $a)
                                             <tr class="border-b border-gray-300">
                                                 <td></td>
                                                 <td class="px-4 py-2">{{ $a->status_karyawan }}</td>

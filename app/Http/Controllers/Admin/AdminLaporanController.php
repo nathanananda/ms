@@ -311,19 +311,38 @@ class AdminLaporanController extends Controller
         )->join('karyawan as k', 'k.id_karyawan', '=', 'history.id_karyawan')
             ->join('kepegawaian as peg', 'peg.id_karyawan', '=', 'k.id_karyawan')
             ->join('master_jabatan as jab', 'jab.id_jabatan', '=', 'peg.id_jabatan')
-            ->join('master_status_karyawan as sk', 'sk.id_status_karyawan', '=', 'peg.id_status_karyawan')
-            ->where('history.approval', '=', 0)->get();
+            ->join('master_status_karyawan as sk', 'sk.id_status_karyawan', '=', 'peg.id_status_karyawan');
+
+        $countStatus = [
+            'menunggu' => (clone $dataPengajuan)
+                ->where('history.approval', '=', 0)
+                ->whereDate('history.created_at', '=', date('Y-m-d'))
+                ->count(),
+
+            'disetujui' => (clone $dataPengajuan)
+                ->where('history.approval', '=', 2)
+                ->whereDate('history.updated_at', '=', date('Y-m-d'))
+                ->count(),
+
+            'ditolak' => (clone $dataPengajuan)
+                ->where('history.approval', '=', 1)
+                ->whereDate('history.updated_at', '=', date('Y-m-d'))
+                ->count(),
+        ];
+
+        $pengajuanMenunggu = (clone $dataPengajuan)
+            ->where('history.approval', '=', 0)
+            ->orderBy('history.created_at', 'desc')
+            ->get();
 
         return view('admin.laporan.persetujuan', [
-            'dataPengajuan' => $dataPengajuan
+            'dataPengajuan' => $pengajuanMenunggu,
+            'countStatus' => $countStatus
         ]);
     }
 
 
-    public function detailPersetujuan($id)
-    {
-
-    }
+    public function detailPersetujuan($id) {}
 
     public function approvalPerubahanData(Request $request)
     {

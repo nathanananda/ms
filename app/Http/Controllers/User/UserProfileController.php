@@ -89,7 +89,7 @@ class UserProfileController extends Controller
             ->join('master_departemen as md', 'md.id_departemen', '=', 'ms.id_departemen')
             ->join('master_divisi as div', 'div.id_divisi', '=', 'md.id_divisi')
             ->join('karyawan as k', 'k.id_karyawan', '=', 'kepegawaian.atasan_langsung')
-            ->where('k.id_karyawan', operator: $dataPribadi->id_karyawan)->first();
+            ->where('kepegawaian.id_karyawan', operator: $dataPribadi->id_karyawan)->first();
 
         $dataPenggajian = Penggajian::where('id_karyawan', operator: $dataPribadi->id_karyawan)->first();
         $dataKontrak = KontrakKaryawan::where('id_karyawan', operator: $dataPribadi->id_karyawan)->where('status_kontrak', '1')->first();
@@ -297,9 +297,8 @@ class UserProfileController extends Controller
     {
         try {
             $data = Karyawan::select(
-                'karyawan.no_hp',
+                'karyawan.*',
                 'karyawan.id_agama as agama',
-                'karyawan.status_nikah',
                 'master_agama.agama as id_agama'
             )->where('id_karyawan', $request->id_karyawan)->join('master_agama', 'master_agama.id_agama', '=', 'karyawan.id_agama')->first();
 

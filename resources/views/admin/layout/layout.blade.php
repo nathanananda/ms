@@ -10,8 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
 </head>
 
-<body class="bg-white text-gray-800 font-GabaritoRegular h-screen">
-    <div class="w-full min-h-screen flex">
+<body class="h-full text-gray-800 font-GabaritoRegular">
+    <div class="w-full flex">
         <!-- Sidebar -->
         <aside class="flex flex-col justify-start w-1/5 h-screen bg-white text-black p-4" x-data="{
             openMenu: @if (Str::startsWith(Route::current()->getName(), 'admin.laporan')) 1
@@ -162,28 +162,30 @@
 
             </ul>
         </aside>
-        <div class="w-4/5 min-h-screen bg-gray-100 p-5"
-            style="background-image: url('{{ asset('assets/bg-layout.svg') }}">
-            <div class="flex justify-end items-center space-x-2">
+        <div class="w-4/5 bg-gray-100 p-5" style="background-image: url('{{ asset('assets/bg-layout.svg') }}');">
+            <div class="flex justify-end items-center space-x-2 relative" x-data="{ open: false }">
+                <!-- Notifikasi -->
                 <a href="{{ route('admin.notification') }}">
                     <i class="fa-solid fa-bell text-lg"></i>
                 </a>
-                <div class="flex justify-between items-center space-x-2">
-                    @php
-                        $nama = session('name') ?? 'User';
-                        $parts = explode(' ', trim($nama));
-                        $count = count($parts);
-                        $initials = '';
 
-                        if ($count >= 2) {
-                            // Ambil huruf pertama dari 2 kata terakhir
-                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
-                        } else {
-                            // Kalau hanya 1 kata, ambil 2 huruf pertama
-                            $initials = strtoupper(substr($parts[0], 0, 2));
-                        }
-                    @endphp
+                @php
+                    $nama = session('name') ?? 'User';
+                    $parts = explode(' ', trim($nama));
+                    $count = count($parts);
+                    $initials = '';
 
+                    if ($count >= 2) {
+                        // Ambil huruf pertama dari 2 kata terakhir
+                        $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
+                    } else {
+                        // Kalau hanya 1 kata, ambil 2 huruf pertama
+                        $initials = strtoupper(substr($parts[0], 0, 2));
+                    }
+                @endphp
+
+                <!-- Trigger Dropdown -->
+                <div @click="open = !open" class="flex items-center space-x-2 cursor-pointer">
                     <div class="relative">
                         <div
                             class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
@@ -191,9 +193,26 @@
                         </div>
                     </div>
                     <div class="text-sm font-GabaritoRegular">
-                        <p class="">Admin</p>
+                        <p>{{ Auth::user()->role }}</p>
                         <p>{{ session('name') }}</p>
                     </div>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div x-show="open" @click.outside="open = false" x-transition
+                    class="absolute top-full right-0 mt-2 w-48 bg-[#232A3E] text-white border border-gray-300 rounded-lg shadow-lg z-50">
+                    <a href="{{ route('admin.profile') }}" class="block px-4 py-2 hover:text-blue-400">
+                        <i class="fa-solid fa-user text-sm me-3"></i>
+                        Profile
+                    </a>
+                    <a href="{{ route('admin.change-pass') }}" class="block px-4 py-2 hover:text-blue-400">
+                        <i class="fa-solid fa-lock text-sm me-3"></i>
+                        Reset password
+                    </a>
+                    <a href="{{ route('logout') }}" class="block px-4 py-2 hover:text-blue-400">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-3"></i>
+                        Logout
+                    </a>
                 </div>
             </div>
 

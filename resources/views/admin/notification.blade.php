@@ -1,4 +1,4 @@
-@extends('kepsek.layout.layout')
+@extends('admin.layout.layout')
 
 @section('content-user')
     <div class="flex flex-col justify-start my-5">
@@ -19,7 +19,7 @@
         <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
             <li class="me-1">
                 <a href="javascript:void(0)" id="tab-all"
-                    class="tab-link inline-flex px-3 py-1 text-black bg-gray-300 rounded-t-lg flex-col items-center hover:bg-[#232A3E] hover:text-white active">
+                    class="tab-link inline-flex px-3 py-1 text-white bg-[#232A3E] rounded-t-lg flex-col items-center active">
                     <p class="font-GabaritoRegular text-sm">Semua</p>
                     <p class="font-GabaritoRegular text-sm">{{ $AllNotif }}</p>
                 </a>
@@ -119,15 +119,17 @@
 
         tabLinks.forEach(link => {
             link.addEventListener('click', function() {
-                // Remove active class dari semua tab
-                tabLinks.forEach(l => l.classList.remove('bg-[#232A3E]', 'text-white'));
-                tabLinks.forEach(l => l.classList.remove('active'));
+                // Reset semua tab
+                tabLinks.forEach(l => {
+                    l.classList.remove('bg-[#232A3E]', 'text-white', 'active');
+                    l.classList.add('bg-gray-300', 'text-black');
+                });
 
-                // Tambahkan class aktif ke tab yang diklik
-                this.classList.add('bg-[#232A3E]', 'text-white');
-                this.classList.add('active');
+                // Aktifkan tab yang diklik
+                this.classList.remove('bg-gray-300', 'text-black');
+                this.classList.add('bg-[#232A3E]', 'text-white', 'active');
 
-                // Toggle konten
+                // Tampilkan konten
                 if (this.id === 'tab-all') {
                     allTab.classList.remove('hidden');
                     unreadTab.classList.add('hidden');
@@ -138,6 +140,7 @@
             });
         });
     </script>
+
     <script>
         function markAsRead(el) {
             const url = el.dataset.url;

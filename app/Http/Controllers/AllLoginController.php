@@ -22,7 +22,7 @@ class AllLoginController extends Controller
 
 
         $user = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.email', $credentials['email'])->first();
-        if ( $user->status_aktif == 0) {
+        if ($user->status_aktif == 0) {
             return redirect()->route('login')->with('toast_error', 'Akun anda sudah dinonaktifkan');
         }
 
@@ -62,6 +62,11 @@ class AllLoginController extends Controller
             if (!Hash::check($request->old_password, $user->password)) {
                 return back()->with('toast_error', 'Password lama salah');
             }
+
+            if ($request->new_password != $request->confirm_new_password) {
+                return back()->with('toast_error', 'Password baru dan konfirmasi password tidak cocok');
+            }
+
 
             $dataUser = User::find($user->id);
             $dataUser->is_changepass = true;

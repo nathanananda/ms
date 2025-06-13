@@ -21,6 +21,7 @@ class AdminOffboardingController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->input('search');
         $data = Karyawan::select(
             'karyawan.nama_lengkap',
             'karyawan.id_karyawan',
@@ -37,14 +38,18 @@ class AdminOffboardingController extends Controller
                 Carbon::now()->addDays(7)->endOfDay()
             ])
             ->where('kon.status_kontrak', 1)
+            ->when($search, function ($query, $search) {
+                $query->where('karyawan.nama_lengkap', 'ILIKE', '%' . $search . '%');
+            })
             ->orderBy('kon.akhir_kontrak', 'asc')
             ->paginate(10);
 
-        foreach ($data as $d) {
-            $d->akhir_kontrak = Carbon::parse($d->akhir_kontrak)->format('d F Y');
-            $d->sisa_kontrak = Carbon::parse($d->akhir_kontrak)->diffInDays(Carbon::now());
-        }
 
+        foreach ($data as $d) {
+            $akhirKontrak = Carbon::parse($d->akhir_kontrak)->endOfDay(); // anggap aktif sampai jam 23:59
+            $d->sisa_kontrak = Carbon::now()->diffInDays($akhirKontrak);
+            $d->akhir_kontrak = $akhirKontrak->format('d F Y');
+        }
         return view('admin.offboarding.index', [
             'data' => $data
         ]);
@@ -174,7 +179,7 @@ class AdminOffboardingController extends Controller
 
             KontrakKaryawan::create($dataKontrak);
 
-            $dataKepsek = User::join('karyawan', 'karyawan.id_karyawan', '=', 'user.id_karyawan')->where('users.role', 'kepsek')->get();
+            $dataKepsek = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'kepsek')->get();
             foreach ($dataKepsek as $k) {
                 Notif::create([
                     'id_notif' => Str::uuid(),
@@ -226,7 +231,7 @@ class AdminOffboardingController extends Controller
                 'created_at' => now(),
             ]);
 
-            $dataKepsek = User::join('karyawan', 'karyawan.id_karyawan', '=', 'user.id_karyawan')->where('users.role', 'kepsek')->get();
+            $dataKepsek = User::join('karyawan', 'karyawan.email_pribadi', '=', 'users.email')->where('users.role', 'kepsek')->get();
             foreach ($dataKepsek as $k) {
                 Notif::create([
                     'id_notif' => Str::uuid(),
@@ -278,6 +283,7 @@ class AdminOffboardingController extends Controller
             return redirect()->back()->with('toast_error', 'Invalid Data !');
         }
         $dataKaryawan = Karyawan::select(
+            'kon.uuid as id_kontrak',
             'karyawan.id_karyawan',
             'karyawan.nama_lengkap',
             'k.nik_karyawan',

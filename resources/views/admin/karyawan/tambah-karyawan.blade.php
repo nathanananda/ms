@@ -44,7 +44,8 @@
     </div>
 
 
-    <div class="w-full h-fit bg-white rounded-lg my-5 p-5">
+
+    <div class="w-full min-h-screen bg-white rounded-lg my-5 p-5 overflow-y-auto">
         <div class="flex justify-between items-center mb-5">
             <p class="font-GabaritoRegular text-2xl">Data Pribadi</p>
         </div>

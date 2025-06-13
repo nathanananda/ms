@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminChangePasswordController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminKaryawanController;
 use App\Http\Controllers\Admin\AdminLaporanController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Kepsek\KepsekNotifController;
 use App\Http\Controllers\Kepsek\KepsekOffboardingController;
 use App\Http\Controllers\Kepsek\KepsekProfileController;
 use App\Http\Controllers\StrukturController;
+use App\Http\Controllers\User\UserChangePasswordController;
 use App\Http\Controllers\User\UserFinansialController;
 use App\Http\Controllers\User\UserNotificationController;
 use App\Http\Controllers\User\UserProfileController;
@@ -46,9 +48,10 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
     });
 
     Route::prefix('user')->middleware(['isUser'])->group(function () {
+        Route::get('/change-pass', [UserChangePasswordController::class, 'index'])->name('user.change-pass');
+        Route::post('change-pass/store', [UserChangePasswordController::class, 'storeChangePass'])->name('user.change-pass.store');
         Route::prefix('profile')->group(function () {
             Route::get('/', [UserProfileController::class, 'index'])->name('user.profile');
-
             Route::prefix('pendidikan')->group(function () {
                 Route::post('add', [UserProfileController::class, 'addPendidikan'])->name('user.profile.add-pendidikan');
                 Route::post('update', [UserProfileController::class, 'updatePendidikan'])->name('user.profile.update-pendidikan');
@@ -65,11 +68,6 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
                 Route::post('store', [UserProfileController::class, 'storeKontakDarurat'])->name('user.profile.store.kondar');
                 Route::get('delete/{id}', [UserProfileController::class, 'deleteKontakDarurat'])->name('user.profile.delete.kondar');
             });
-
-
-
-
-
 
 
             Route::post('updatePenggajian', [UserProfileController::class, 'updatePenggajian'])->name('user.profile.updatePenggajian');
@@ -184,6 +182,10 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
 
     Route::prefix('admin')->middleware(['isAdmin'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+        Route::get('/change-pass', [AdminChangePasswordController::class, 'index'])->name('admin.change-pass');
+        Route::post('change-pass/store', [AdminChangePasswordController::class, 'storeChangePass'])->name('admin.change-pass.store');
+
         Route::get('notification', [AdminNotifController::class, 'index'])->name('admin.notification');
         Route::get('getGender', [AdminDashboardController::class, 'getGender'])->name('admin.getGender');
         Route::get('getReligion', [AdminDashboardController::class, 'getReligion'])->name('admin.getReligion');

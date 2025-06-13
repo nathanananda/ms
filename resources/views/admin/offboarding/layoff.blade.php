@@ -30,6 +30,7 @@
         <h3 class="font-GabaritoRegular text-2xl">Pemberhentian Kontrak</h3>
         <form action="{{ route('admin.offboarding.layoff.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="id_kontrak" value="{{ $dataKaryawan->id_kontrak }}">
             <input type="hidden" name="id_karyawan" value="{{ $dataKaryawan->id_karyawan }}">
             <div class="flex justify-between items-start my-5 space-x-3">
                 <div class="w-1/2">

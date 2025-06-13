@@ -320,6 +320,9 @@ class KepsekLaporanController extends Controller
             ->where('kon.tipe_kontrak', '!=', 'Nonactive')
             ->where('karyawan.status_aktif', True)
             ->get();
+
+
+            
         return view('kepsek.laporan.persetujuan', [
             'dataPersetujuanKontrak' => $dataPersetujuanKontrak
         ]);

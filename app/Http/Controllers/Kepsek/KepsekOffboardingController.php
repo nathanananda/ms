@@ -33,8 +33,9 @@ class KepsekOffboardingController extends Controller
             ->paginate(10);
 
         foreach ($data as $d) {
-            $d->akhir_kontrak = Carbon::parse($d->akhir_kontrak)->format('d F Y');
-            $d->sisa_kontrak = Carbon::parse($d->akhir_kontrak)->diffInDays(Carbon::now());
+            $akhirKontrak = Carbon::parse($d->akhir_kontrak)->endOfDay(); // anggap aktif sampai jam 23:59
+            $d->sisa_kontrak = Carbon::now()->diffInDays($akhirKontrak);
+            $d->akhir_kontrak = $akhirKontrak->format('d F Y');
         }
 
         return view('kepsek.karyawan.offboarding.index', [
@@ -95,6 +96,7 @@ class KepsekOffboardingController extends Controller
             return redirect()->back()->with('toast_error', 'Invalid Data !');
         }
         $dataKaryawan = Karyawan::select(
+            'kon.uuid as id_kontrak',   
             'karyawan.id_karyawan',
             'karyawan.nama_lengkap',
             'k.nik_karyawan',

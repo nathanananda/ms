@@ -10,7 +10,7 @@
                         <a href="#"
                             class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
                             <i class="fa-solid fa-chart-line me-3"></i>
-                            Laporan Persetujuan
+                            Laporan Kontrak
                         </a>
                     </li>
                     <li>
@@ -21,7 +21,8 @@
                                     d="m1 9 4-4-4-4" />
                             </svg>
                             <a href="#"
-                                class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2">List</a>
+                                class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2">List
+                                Persetujuan</a>
                         </div>
                     </li>
 
@@ -29,8 +30,27 @@
             </nav>
         </div>
     </div>
-
+    <div class="flex justify-end items-center mb-5">
+        <div class="w-fit h-14 bg-white rounded-lg flex justify-normal items-center p-3 space-x-3">
+            <h3 class="font-GabaritoRegular text-base">Status Persetujuan</h3>
+            <h3 class="font-GabaritoRegular text-base">{{ Carbon\Carbon::now()->format('d/m/Y') }}</h3>
+            <div class="space-x-2">
+                <span class="font-GabaritoRegular text-xs bg-[#137D28] py-1 px-2 rounded-lg text-white">
+                    Disetujui {{ $countStatus['disetujui'] }}
+                </span>
+                <span class="font-GabaritoRegular text-xs bg-[#FFCD00] py-1 px-2 rounded-lg text-white">
+                    Menunggu {{ $countStatus['menunggu'] }}
+                </span>
+                <span class="font-GabaritoRegular text-xs bg-[#FF2F28] py-1 px-2 rounded-lg text-white">
+                    Ditolak {{ $countStatus['ditolak'] }}
+                </span>
+            </div>
+        </div>
+    </div>
     <div class="w-full h-fit bg-white p-5 rounded-xl">
+        <div class="flex justify-start items-center">
+            <h3 class="font-GabaritoRegular text-2xl">List Persetujuan Perubahan Data</h3>
+        </div>
         <table class="table-auto w-full text-sm text-left text-gray-700 border border-gray-300" id="laporan-table">
             <thead class="bg-gray-100">
                 <tr>
@@ -62,15 +82,17 @@
                                     method="GET">
                                     @csrf
                                     <input type="hidden" name="id_history" value="{{ $i->id_history }}">
-                                    <button
-                                        class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition">Approve</button>
+                                    <button class="bg-green-400 text-white py-2 px-4 rounded hover:bg-green-500 transition">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
                                 </form>
                                 <form action="{{ route('admin.laporan.persetujuan.reject', ['id' => $i->id_history]) }}"
                                     method="GET">
                                     @csrf
                                     <input type="hidden" name="id_history" value="{{ $i->id_history }}">
-                                    <button
-                                        class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition">Reject</button>
+                                    <button class="bg-red-400 text-white py-2 px-4 rounded hover:bg-red-500 transition">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
                                 </form>
                             </div>
                         </td>

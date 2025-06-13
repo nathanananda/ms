@@ -217,7 +217,8 @@ class AdminKaryawanController extends Controller
                 ->where('karyawan.status_aktif', True)
                 ->where('karyawan.approval_kepsek', 2)
                 ->paginate(12);
-            } else {
+            // dd($listData);
+        } else {
             $listData = Karyawan::select(
                 'karyawan.id_karyawan',
                 'karyawan.nama_lengkap',
@@ -233,7 +234,39 @@ class AdminKaryawanController extends Controller
         }
 
 
+
         $StatusAll = MasterStatusKaryawan::all();
+        $listWarna = [];
+
+        foreach ($StatusAll as $a) {
+            $nama = $a->status_karyawan;
+
+            switch (true) {
+                case str_contains($nama, 'Pegawai Tetap'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#137D28]';
+                    break;
+                case str_contains($nama, 'Pegawai Kontrak'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#F8901F]';
+                    break;
+                case str_contains($nama, 'Tenaga Honorer'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#1FB7F8]';
+                    break;
+                case str_contains($nama, 'Pegawai PPPK'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#00668C]';
+                    // dd($nama);
+                    break;
+                case str_contains($nama, 'PNS'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#D3A409]';
+                    break;
+                case str_contains($nama, 'Magang'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#F8901F]';
+                    break;
+                default:
+                    $listWarna[$a->status_karyawan] = 'bg-[#565656]';
+                    break;
+            }
+        }
+
         $StatusAll = Karyawan::join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
             ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
             ->where('karyawan.status_aktif', true)
@@ -244,10 +277,13 @@ class AdminKaryawanController extends Controller
 
 
 
+
+
         return view('admin.karyawan.list', [
             'StatusAll' => $StatusAll,
             'listData' => $listData,
-            'totalAll' => $totalAll
+            'totalAll' => $totalAll,
+            'listWarna' => $listWarna
         ]);
     }
 

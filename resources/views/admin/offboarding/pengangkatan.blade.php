@@ -28,9 +28,9 @@
     </div>
     <div class="w-full min-h-screen bg-white rounded-xl p-5">
         <h3 class="font-GabaritoRegular text-2xl">Pengangkatan Kontrak</h3>
-        <form action="{{ route('admin.offboarding.pengangkatan.store') }}" method="POST">
+        <form action="{{ route('admin.offboarding.pengangkatan.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="hidde" name="id_karyawan" value="{{ $dataKaryawan->id_karyawan }}">
+            <input type="hidden" name="id_karyawan" value="{{ $dataKaryawan->id_karyawan }}">
             <div class="flex justify-between items-start my-5 space-x-3">
                 <div class="w-1/2">
                     <div class="mb-4">
@@ -59,7 +59,7 @@
                     </div>
                     <div class="mb-4">
                         <label for="jabatan" class="block text-sm font-medium text-gray-700">Jabatan</label>
-                        <select id="countries"
+                        <select id="countries" name="id_jabatan"
                             class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                             <option selected>Pilih Jabatan</option>
                             @foreach ($dataJabatan as $j)
@@ -73,7 +73,7 @@
                         <label for="status_karyawan" class="block text-sm font-medium text-gray-700 mb-1">
                             Status Karyawan
                         </label>
-                        <select id="status_karyawan" name="status_karyawan"
+                        <select id="status_karyawan" name="id_status_karyawan"
                             class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                             <option disabled selected>Pilih Status Karyawan</option>
                             @foreach ($dataStatus as $s)
@@ -108,7 +108,7 @@
                             </svg>
                             <p class="font-GabaritoRegular text-sm mt-2" id="file-name">Tekan di sini untuk upload file!</p>
                         </div>
-                        <input id="upload_kontrak" type="file" name="upload_kontrak" class="hidden" accept=".pdf, .word">
+                        <input id="upload_kontrak" type="file" name="file_kontrak" class="hidden" accept=".pdf, .word">
                     </label>
                 </div>
             </div>

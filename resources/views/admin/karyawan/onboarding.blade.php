@@ -31,6 +31,9 @@
     </div>
 
     <div class="w-full h-fit bg-white p-5 rounded-xl">
+        <div class="flex justify-start items-center">
+            <h3 class="font-GabaritoRegular text-2xl">List Karyawan Yang Baru On Boarding</h3>
+        </div>
         <table class="table-auto w-full text-sm text-left text-gray-700 border border-gray-300" id="laporan-table">
             <thead class="">
                 <tr>

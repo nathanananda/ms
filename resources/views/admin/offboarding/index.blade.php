@@ -15,8 +15,13 @@
         </nav>
     </div>
     <div class="w-full min-h-screen bg-white rounded-xl p-5">
-        <h3 class="font-GabaritoRegular text-xl">List Karyawan yang Kontraknya akan segera berakhir</h3>
-
+        <div class="flex justify-between items-center">
+            <h3 class="font-GabaritoRegular text-xl">List Karyawan yang Kontraknya akan segera berakhir</h3>
+            <form method="GET" action="{{ route('admin.offboarding') }}" id="searchForm">
+                <input type="text" name="search" id="searchInput" class="border border-slate-300 px-3 py-1 rounded-lg"
+                    placeholder="Cari Karyawan.." value="{{ request('search') }}">
+            </form>
+        </div>
 
         <div class="my-5">
             @foreach ($data as $a)
@@ -73,4 +78,18 @@
             </div>
         </div>
     </div>
+@endsection
+@section('content-script')
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchForm = document.getElementById('searchForm');
+
+        let timer = null;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                searchForm.submit();
+            }, 500); // Tunggu 500ms setelah user berhenti mengetik
+        });
+    </script>
 @endsection

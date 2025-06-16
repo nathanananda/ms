@@ -1,4 +1,4 @@
-@extends('admin.layout.layout')
+@extends('user.layout.layout')
 
 @section('content-user')
     <div class="flex flex-col justify-start my-5">

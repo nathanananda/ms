@@ -56,19 +56,18 @@ class AdminKaryawanController extends Controller
         $validated = $request->validate([
             // Tahap 1 - Data Pribadi
             'nama_lengkap' => 'required',
-            'nik' => 'required',
             'jenis_kelamin' => 'required',
             'tempat_lahir' => 'required',
             'tanggal_lahir' => 'required|date',
-            'agama' => 'required',
+            'id_agama' => 'required',
             'status_nikah' => 'required',
             'no_hp' => 'required',
             'alamat' => 'required',
             'provinsi' => 'required',
             'kota' => 'required',
             'kecamatan' => 'required',
-            'kelurahan' => 'required',
-            'kode_pos' => 'required',
+            'id_kelurahan' => 'required',
+            'kodepos' => 'required',
 
             // Tahap 2 - Pendidikan
             'tingkat_pendidikan' => 'required',
@@ -109,7 +108,7 @@ class AdminKaryawanController extends Controller
             'akhir_kontrak' => 'required|date|after_or_equal:awal_kontrak',
             'file_kontrak' => 'required|file|mimes:pdf,doc,docx|max:2048',
         ]);
-        
+
         DB::beginTransaction();
 
         try {

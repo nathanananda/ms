@@ -99,7 +99,7 @@ class AdminLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Admin : ' . session('name') . 'Mengajukan Perpanjang Kontrak : ' . $request->nama_lengkap,
+                    'message' => '<b> ' . session(key: 'name') . '</b> meminta persetujuan untuk <b>persetujuan perpanjang kontrak karyawan kerja ' . $request->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -110,7 +110,8 @@ class AdminLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataAdmin->id_karyawan,
-                'message' => 'Anda Mengajukan Perpanjang Kontrak : ' . $request->nama_lengkap,
+                'message' => 'Anda meminta persetujuan untuk persetujuan perpanjang kontrak karyawan kerja : ' . $request->nama_lengkap,
+                'is_announc' => 1,
                 'is_read' => 0,
                 'type' => 2,
                 'created_at' => now(),
@@ -200,7 +201,7 @@ class AdminLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Admin : ' . session('name') . 'Mengajukan Pengangkatan : ' . $karyawan->nama_lengkap,
+                    'message' => '<b> ' . session(key: 'name') . '</b> meminta persetujuan untuk <b>persetujuan pengangkatan karyawan kerja ' . $karyawan->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -211,8 +212,9 @@ class AdminLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataAdmin->id_karyawan,
-                'message' => 'Anda Mengajukan Pengangkatan Kontrak : ' . $request->nama_lengkap,
+                'message' => 'Anda meminta persetujuan untuk persetujuan pengangkatan karyawan kerja : ' . $request->nama_lengkap,
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -275,7 +277,7 @@ class AdminLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Admin : ' . session('name') . 'Mengajukan Pemberhentian : ' . $dataKontrak->nama_lengkap,
+                    'message' => '<b> ' . session(key: 'name') . '</b> meminta persetujuan untuk <b>persetujuan pemberhentian karyawan kerja ' . $dataKontrak->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -286,8 +288,9 @@ class AdminLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataAdmin->id_karyawan,
-                'message' => 'Anda Mengajukan Pemberhentian Kontrak : ' . $request->nama_lengkap,
+                'message' => 'Anda meminta persetujuan untuk persetujuan pemberhentian karyawan kerja : ' . $request->nama_lengkap,
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -342,8 +345,6 @@ class AdminLaporanController extends Controller
     }
 
 
-    public function detailPersetujuan($id) {}
-
     public function approvalPerubahanData(Request $request)
     {
         try {
@@ -379,8 +380,9 @@ class AdminLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $data->id_karyawan,
-                'message' => session('name') . 'telah menyetujui perubahan data : ' . $data->field,
+                'message' => 'Perubahan data anda berhasil <span class="text-green-700">disetujui</span>',
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 1,
                 'created_at' => now(),
             ]);
@@ -401,8 +403,9 @@ class AdminLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $data->id_karyawan,
-                'message' => session('name') . 'tidak menyetujui perubahan data : ' . $data->field,
+                'message' => 'Perubahan data anda <span class="text-red-700">ditolak</span>',
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 1,
                 'created_at' => now(),
             ]);

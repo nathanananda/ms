@@ -1,4 +1,4 @@
-@extends('user.layout.layout')
+@extends('admin.layout.layout')
 
 @section('content-user')
     <div class="flex flex-col justify-start my-5">
@@ -19,7 +19,7 @@
         <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
             <li class="me-1">
                 <a href="javascript:void(0)" id="tab-all"
-                    class="tab-link inline-flex px-3 py-1 text-black bg-gray-300 rounded-t-lg flex-col items-center hover:bg-[#232A3E] hover:text-white active">
+                    class="tab-link inline-flex px-3 py-1 text-white bg-[#232A3E] rounded-t-lg flex-col items-center active">
                     <p class="font-GabaritoRegular text-sm">Semua</p>
                     <p class="font-GabaritoRegular text-sm">{{ $AllNotif }}</p>
                 </a>
@@ -37,11 +37,44 @@
     <div class="tab-content w-full h-fit bg-white space-y-1 rounded-2xl py-3" id="allNotif">
         @foreach ($Notif as $a)
             <div onclick="markAsRead(this)" data-url="{{ route('user.notification.read', ['id' => $a->id_notif]) }}"
-                class="cursor-pointer w-full h-24 border border-gray-600 p-4 {{ $a->is_read == 1 ? 'bg-green-200' : 'bg-red-200' }}">
+                class="cursor-pointer w-full h-24 border border-gray-600 p-4
+        {{ $a->is_announc == 1 ? 'bg-white' : ($a->type == 1 ? 'bg-[#FFF2E4]' : ($a->type == 2 ? 'bg-[#FFEBEB]' : 'bg-white')) }}">
+
                 <div class="flex justify-start items-center space-x-3">
-                    <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-14 h-14 rounded-full" alt="">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $initials = '';
+
+                        // Ambil maksimal 3 kata pertama saja
+                        foreach (array_slice($parts, 0, 3) as $part) {
+                            $initials .= strtoupper(substr($part, 0, 1));
+                        }
+
+                        // Jika hanya 1 kata, ambil 2 huruf pertama
+                        if (count($parts) == 1) {
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
+
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-[#232A3E] flex items-center justify-center text-sm font-bold text-white">
+                            @if ($a->is_announc == 1)
+                                <div class="bg-white rounded-full px-2 py-0.5 flex items-center justify-center">
+                                    <i class="fa-solid fa-exclamation text-[#232A3E]"></i>
+                                </div>
+                            @else
+                                {{ $initials }}
+                            @endif
+                        </div>
+
+                        <span
+                            class="top-0 left-7 absolute w-3.5 h-3.5 {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
+                    </div>
                     <div>
-                        <p class="font-GabaritoMedium text-md">{{ $a->message }}</p>
+                        <p class="font-GabaritoMedium text-md">{!! $a->message !!}</p>
                         <p class="font-GabaritoRegular text-sm">{{ $a->created_at->diffForHumans() }}</p>
                     </div>
                 </div>
@@ -52,13 +85,44 @@
     {{-- Notifikasi Belum Dibaca --}}
     <div class="tab-content w-full h-fit bg-white space-y-1 rounded-2xl py-3 hidden" id="unreadNotif">
         @foreach ($Notif->where('is_read', 0) as $a)
-            {{-- filter berdasarkan status --}}
             <div onclick="markAsRead(this)" data-url="{{ route('user.notification.read', ['id' => $a->id_notif]) }}"
-                class="cursor-pointer w-full h-24 border border-gray-600 p-4 {{ $a->is_read == 1 ? 'bg-green-200' : 'bg-red-200' }}">
+                class="cursor-pointer w-full h-24 border border-gray-600 p-4
+        {{ $a->is_announc == 1 ? 'bg-white' : ($a->type == 1 ? 'bg-[#FFF2E4]' : ($a->type == 2 ? 'bg-[#FFEBEB]' : 'bg-white')) }}">
+
                 <div class="flex justify-start items-center space-x-3">
-                    <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-14 h-14 rounded-full" alt="">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $initials = '';
+
+                        // Ambil maksimal 3 kata pertama saja
+                        foreach (array_slice($parts, 0, 3) as $part) {
+                            $initials .= strtoupper(substr($part, 0, 1));
+                        }
+
+                        // Jika hanya 1 kata, ambil 2 huruf pertama
+                        if (count($parts) == 1) {
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-[#232A3E] flex items-center justify-center text-sm font-bold text-white">
+                            @if ($a->is_announc == 1)
+                                <div class="bg-white rounded-full px-2 py-0.5 flex items-center justify-center">
+                                    <i class="fa-solid fa-exclamation text-[#232A3E]"></i>
+                                </div>
+                            @else
+                                {{ $initials }}
+                            @endif
+                        </div>
+
+                        <span
+                            class="top-0 left-7 absolute w-3.5 h-3.5 {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
+                    </div>
                     <div>
-                        <p class="font-GabaritoMedium text-md">{{ $a->message }}</p>
+                        <p class="font-GabaritoMedium text-md">{!! $a->message !!}</p>
                         <p class="font-GabaritoRegular text-sm">{{ $a->created_at->diffForHumans() }}</p>
                     </div>
                 </div>
@@ -76,15 +140,17 @@
 
         tabLinks.forEach(link => {
             link.addEventListener('click', function() {
-                // Remove active class dari semua tab
-                tabLinks.forEach(l => l.classList.remove('bg-[#232A3E]', 'text-white'));
-                tabLinks.forEach(l => l.classList.remove('active'));
+                // Reset semua tab
+                tabLinks.forEach(l => {
+                    l.classList.remove('bg-[#232A3E]', 'text-white', 'active');
+                    l.classList.add('bg-gray-300', 'text-black');
+                });
 
-                // Tambahkan class aktif ke tab yang diklik
-                this.classList.add('bg-[#232A3E]', 'text-white');
-                this.classList.add('active');
+                // Aktifkan tab yang diklik
+                this.classList.remove('bg-gray-300', 'text-black');
+                this.classList.add('bg-[#232A3E]', 'text-white', 'active');
 
-                // Toggle konten
+                // Tampilkan konten
                 if (this.id === 'tab-all') {
                     allTab.classList.remove('hidden');
                     unreadTab.classList.add('hidden');
@@ -95,6 +161,7 @@
             });
         });
     </script>
+
     <script>
         function markAsRead(el) {
             const url = el.dataset.url;

@@ -42,28 +42,30 @@
                     @php
                         $nama = session('name') ?? 'User';
                         $parts = explode(' ', trim($nama));
-                        $count = count($parts);
                         $initials = '';
 
-                        if ($count >= 2) {
-                            // Ambil huruf pertama dari 2 kata terakhir
-                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
-                        } else {
-                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                        // Ambil maksimal 3 kata pertama saja
+                        foreach (array_slice($parts, 0, 3) as $part) {
+                            $initials .= strtoupper(substr($part, 0, 1));
+                        }
+
+                        // Jika hanya 1 kata, ambil 2 huruf pertama
+                        if (count($parts) == 1) {
                             $initials = strtoupper(substr($parts[0], 0, 2));
                         }
                     @endphp
 
+
                     <div class="relative">
                         <div
-                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            class="w-10 h-10 rounded-full bg-[#232A3E] flex items-center justify-center text-sm font-bold text-white">
                             {{ $initials }}
                         </div>
                         <span
                             class="top-0 left-7 absolute w-3.5 h-3.5 {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
                     </div>
                     <div>
-                        <p class="font-GabaritoMedium text-md">{{ $a->message }}</p>
+                        <p class="font-GabaritoMedium text-md">{!! $a->message !!}</p>
                         <p class="font-GabaritoRegular text-sm">{{ $a->created_at->diffForHumans() }}</p>
                     </div>
                 </div>
@@ -80,28 +82,29 @@
                     @php
                         $nama = session('name') ?? 'User';
                         $parts = explode(' ', trim($nama));
-                        $count = count($parts);
                         $initials = '';
 
-                        if ($count >= 2) {
-                            // Ambil huruf pertama dari 2 kata terakhir
-                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
-                        } else {
-                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                        // Ambil maksimal 3 kata pertama saja
+                        foreach (array_slice($parts, 0, 3) as $part) {
+                            $initials .= strtoupper(substr($part, 0, 1));
+                        }
+
+                        // Jika hanya 1 kata, ambil 2 huruf pertama
+                        if (count($parts) == 1) {
                             $initials = strtoupper(substr($parts[0], 0, 2));
                         }
                     @endphp
 
                     <div class="relative">
                         <div
-                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            class="w-10 h-10 rounded-full bg-[#232A3E] flex items-center justify-center text-sm font-bold text-white">
                             {{ $initials }}
                         </div>
                         <span
                             class="top-0 left-7 absolute w-3.5 h-3.5 {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
                     </div>
                     <div>
-                        <p class="font-GabaritoMedium text-md">{{ $a->message }}</p>
+                        <p class="font-GabaritoMedium text-md">{!! $a->message !!}</p>
                         <p class="font-GabaritoRegular text-sm">{{ $a->created_at->diffForHumans() }}</p>
                     </div>
                 </div>

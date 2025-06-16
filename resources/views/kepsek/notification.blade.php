@@ -19,7 +19,7 @@
         <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
             <li class="me-1">
                 <a href="javascript:void(0)" id="tab-all"
-                    class="tab-link inline-flex px-3 py-1 text-black bg-gray-300 rounded-t-lg flex-col items-center hover:bg-[#232A3E] hover:text-white active">
+                    class="tab-link inline-flex px-3 py-1 text-white bg-[#232A3E] rounded-t-lg flex-col items-center active">
                     <p class="font-GabaritoRegular text-sm">Semua</p>
                     <p class="font-GabaritoRegular text-sm">{{ $AllNotif }}</p>
                 </a>
@@ -78,9 +78,25 @@
             <div onclick="markAsRead(this)" data-url="{{ route('kepsek.notification.read', ['id' => $a->id_notif]) }}"
                 class="cursor-pointer w-full h-24 border border-gray-600 p-4 {{ $a->type == 1 ? 'bg-[#FFF2E4]' : ($a->type == 2 ? 'bg-[#FFEBEB]' : 'bg-white') }}">
                 <div class="flex justify-start items-center space-x-3">
+                    @php
+                        $nama = session('name') ?? 'User';
+                        $parts = explode(' ', trim($nama));
+                        $count = count($parts);
+                        $initials = '';
+
+                        if ($count >= 2) {
+                            // Ambil huruf pertama dari 2 kata terakhir
+                            $initials = strtoupper(substr($parts[$count - 2], 0, 1) . substr($parts[$count - 1], 0, 1));
+                        } else {
+                            // Kalau hanya 1 kata, ambil 2 huruf pertama
+                            $initials = strtoupper(substr($parts[0], 0, 2));
+                        }
+                    @endphp
                     <div class="relative">
-                        <img src="{{ asset('assets/profile-default.jpeg') }}" class="w-10 h-10 rounded-full"
-                            alt="">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-white">
+                            {{ $initials }}
+                        </div>
                         <span
                             class="top-0 left-7 absolute  w-3.5 h-3.5  {{ $a->is_read == 1 ? 'bg-green-400' : 'bg-red-400' }} border-2 border-white rounded-full"></span>
                     </div>
@@ -95,7 +111,6 @@
 @endsection
 
 @section('content-script')
-    {{-- JavaScript --}}
     <script>
         const tabLinks = document.querySelectorAll('.tab-link');
         const allTab = document.getElementById('allNotif');
@@ -103,15 +118,17 @@
 
         tabLinks.forEach(link => {
             link.addEventListener('click', function() {
-                // Remove active class dari semua tab
-                tabLinks.forEach(l => l.classList.remove('bg-[#232A3E]', 'text-white'));
-                tabLinks.forEach(l => l.classList.remove('active'));
+                // Reset semua tab
+                tabLinks.forEach(l => {
+                    l.classList.remove('bg-[#232A3E]', 'text-white', 'active');
+                    l.classList.add('bg-gray-300', 'text-black');
+                });
 
-                // Tambahkan class aktif ke tab yang diklik
-                this.classList.add('bg-[#232A3E]', 'text-white');
-                this.classList.add('active');
+                // Aktifkan tab yang diklik
+                this.classList.remove('bg-gray-300', 'text-black');
+                this.classList.add('bg-[#232A3E]', 'text-white', 'active');
 
-                // Toggle konten
+                // Tampilkan konten
                 if (this.id === 'tab-all') {
                     allTab.classList.remove('hidden');
                     unreadTab.classList.add('hidden');
@@ -122,6 +139,7 @@
             });
         });
     </script>
+
     <script>
         function markAsRead(el) {
             const url = el.dataset.url;

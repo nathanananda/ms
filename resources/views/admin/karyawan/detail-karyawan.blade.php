@@ -57,6 +57,13 @@
 
 
     <div class="w-full h-fit bg-white rounded-lg my-5 p-5">
+        <div class="flex justify-between items-center">
+            <h3 class="font-GabaritoMedium text-xl">{{ $dataPribadi->nama_lengkap }}</h3>
+            <a href="{{ route('admin.karyawan.update-karyawan', ['id' => $dataPribadi->id_karyawan]) }}"
+                class="bg-blue-600 hover:bg-gray-800 p-1.5 rounded-lg">
+                <i class="fa-solid fa-pen-to-square text-white"></i>
+            </a>
+        </div>
         <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
             <li class="me-2">
                 <button data-target="data-pribadi"

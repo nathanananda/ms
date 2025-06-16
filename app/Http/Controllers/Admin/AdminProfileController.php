@@ -54,14 +54,19 @@ class AdminProfileController extends Controller
         $dataAlamat = Alamat::select(
             'alamat.*',
             'kel.nama_kelurahan',
+            'kel.id_kelurahan',
             'kec.nama_kecamatan',
+            'kec.id_kecamatan',
             'kota.nama_kota',
-            'prov.nama_provinsi'
+            'kota.id_kota',
+            'prov.nama_provinsi',
+            'prov.id_provinsi'
         )->join('master_kelurahan as kel', 'kel.id_kelurahan', '=', 'alamat.id_kelurahan')
             ->join('master_kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
             ->join('master_kota as kota', 'kota.id_kota', '=', 'kec.id_kota')
             ->join('master_provinsi as prov', 'prov.id_provinsi', '=', 'kota.id_provinsi')
-            ->where('alamat.id_karyawan', operator: $dataPribadi->id_karyawan);
+            ->where('alamat.id_karyawan', operator: $dataPribadi->id_karyawan)
+            ->orderBy('alamat.created_at', 'desc');
 
         $dataKontak = KontakDarurat::where('id_karyawan', operator: $dataPribadi->id_karyawan)->where('deleted_at', null)->get();
 
@@ -111,6 +116,18 @@ class AdminProfileController extends Controller
             return redirect()->route('admin.profile')->with('toast_success', 'Alamat berhasil ditambahkan !');
         } catch (\Throwable $th) {
             return redirect()->route('admin.profile')->with('toast_error', 'Alamat gagal ditambahkan !');
+        }
+    }
+
+    public function updateAlamat(Request $request)
+    {
+        try {
+            $data = $request->except('_token', 'provinsi', 'kota', 'kecamatan');
+            $dataAlamat = Alamat::where('id_alamat', $request->id_alamat)->first();
+            $dataAlamat->update($data);
+            return redirect()->route('admin.profile')->with('toast_success', 'Alamat berhasil diubah !');
+        } catch (\Throwable $th) {
+            return redirect()->route('admin.profile')->with('toast_error', 'Alamat gagal diubah : ' . $th->getMessage());
         }
     }
 

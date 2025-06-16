@@ -43,6 +43,7 @@ class AdminOffboardingController extends Controller
             })
             ->orderBy('kon.akhir_kontrak', 'asc')
             ->paginate(10);
+        
 
 
         foreach ($data as $d) {

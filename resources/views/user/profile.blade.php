@@ -455,7 +455,7 @@
                                         focus:ring-blue-500">
                                         <option value="">Pilih Provinsi</option>
                                         @foreach ($provinsi as $item)
-                                            <option value="{{ $item->id_provinsi }}">
+                                            <option value="{{ $item->id_provinsi }}" {{ $key->id_provinsi == $item->id_provinsi ? 'selected' : '' }}>
                                                 {{ $item->nama_provinsi }}</option>
                                         @endforeach
                                     </select>

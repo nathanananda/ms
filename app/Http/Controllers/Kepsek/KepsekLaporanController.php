@@ -85,7 +85,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . 'Memperpanjang Kontrak : ' . $request->nama_lengkap,
+                    'message' => '<b> ' . session('name') . ' </b>  telah melakukan perpanjangan kontrak kerja <b> ' . $request->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -96,8 +96,9 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Memperpanjang Kontrak : ' . $request->nama_lengkap,
+                'message' => 'Anda telah melakukan perpanjangan kontrak kerja  ' . $request->nama_lengkap,
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -195,7 +196,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . 'Melaakukan Pengangkatan Kontrak : ' . $request->nama_lengkap,
+                    'message' => '<b>' . session('name') . ' </b> telah melakukan pengangkatan kontrak kerja <b> ' . $request->nama_lengkp . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -206,8 +207,9 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Melakukan Pengangkatan Kontrak : ' . $request->nama_lengkap,
+                'message' => 'Anda telah melakukan pengangkatan kontrak kerja ' . $request->nama_lengkap,
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -267,6 +269,7 @@ class KepsekLaporanController extends Controller
 
             $dataKaryawan = Karyawan::where('id_karyawan', $request->id_karyawan)->first();
             $dataKaryawan->status_aktif = 0;
+            $dataKaryawan->approval_kepsek = '0';
             $dataKaryawan->tipe_kontrak = 'Nonactive';
             $dataKaryawan->save();
 
@@ -275,7 +278,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . 'Memberhentikan Kontrak : ' . $request->nama_lengkap,
+                    'message' => '<b> ' . session('name') . '</b> memberhentikan kontrak <b> ' . $request->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -286,8 +289,9 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Memberhentikan Kontrak : ' . $request->nama_lengkap,
+                'message' => 'Anda telah memberhentikan kontrak <b> ' . $request->nama_lengkap  . ' </b>',
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -304,7 +308,8 @@ class KepsekLaporanController extends Controller
 
     public function persetujuan()
     {
-        $dataPersetujuanKontrak = Karyawan::select(
+        // Base query: hanya join dan kondisi umum
+        $baseQuery = Karyawan::select(
             'karyawan.id_karyawan',
             'karyawan.nama_lengkap',
             'msk.status_karyawan',
@@ -315,16 +320,38 @@ class KepsekLaporanController extends Controller
             ->join('master_status_karyawan as msk', 'k.id_status_karyawan', '=', 'msk.id_status_karyawan')
             ->join('master_jabatan as mj', 'k.id_jabatan', '=', 'mj.id_jabatan')
             ->join('kontrak_karyawan as kon', 'kon.id_karyawan', '=', 'k.id_karyawan')
-            ->where('kon.status_kontrak', 0)
-            ->where('kon.catatan', null)
             ->where('kon.tipe_kontrak', '!=', 'Nonactive')
-            ->where('karyawan.status_aktif', True)
+            ->where('karyawan.status_aktif', true);
+
+        // Untuk menampilkan di view (hanya status "menunggu" dan belum ada catatan)
+        $dataPersetujuanKontrak = (clone $baseQuery)
+            ->where('kon.status_kontrak', 0)
+            ->whereNull('kon.catatan')
             ->get();
 
+        // Count berdasarkan kondisi
+        $countStatus = [
+            'menunggu' => (clone $baseQuery)
+                ->where('kon.status_kontrak', 0)
+                ->whereNull('kon.catatan')
+                ->whereDate('kon.created_at', date('Y-m-d'))
+                ->count(),
 
-            
+            'disetujui' => (clone $baseQuery)
+                ->where('kon.status_kontrak', 1)
+                ->whereDate('kon.updated_at', date('Y-m-d'))
+                ->count(),
+
+            'ditolak' => (clone $baseQuery)
+                ->where('kon.status_kontrak', 0)
+                ->whereNotNull('kon.catatan')
+                ->whereDate('kon.updated_at', date('Y-m-d'))
+                ->count(),
+        ];
+
         return view('kepsek.laporan.persetujuan', [
-            'dataPersetujuanKontrak' => $dataPersetujuanKontrak
+            'dataPersetujuanKontrak' => $dataPersetujuanKontrak,
+            'countStatus' => $countStatus
         ]);
     }
 
@@ -511,7 +538,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . ' Menolak Update Kontrak : ' . $data->nama_lengkap . '. Catatan : ' . $request->catatan,
+                    'message' => '<b> ' . session('name') . ' </b> <span class="bg-red-700">menolak</span> persetujuan untuk update kontrak ' . $data->nama_lengkap . ' dengan alasan <b>' . $request->catatan . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -522,7 +549,7 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Menolak Update Kontrak : ' . $data->nama_lengkap . '. Catatan : ' . $request->catatan,
+                'message' => 'Anda <span class="bg-red-700">menolak</span> persetujuan untuk update kontrak ' . $data->nama_lengkap . ' dengan alasan <b>' . $request->catatan . '</b>',
                 'is_read' => 0,
                 'type' => 2,
                 'created_at' => now(),
@@ -552,7 +579,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . ' Menyetujui Perpanjang Kontrak : ' . $dataKontrak->nama_lengkap,
+                    'message' => '<b> ' . session('name') . ' </b> telah <span class="bg-green-700">menyetujui</span> persetujuan perpanjang kontrak kerja <b>' . $dataKontrak->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -563,8 +590,9 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Menyetujui Perpanjang Kontrak : ' . $dataKontrak->nama_lengkap,
+                'message' => 'Anda <span class="bg-green-700">menyetujui</span> persetujuan perpanjang kontrak kerja <b>' . $dataKontrak->nama_lengkap . '</b>',
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -591,7 +619,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . 'Menyetujui Pemberhentian Kontrak : ' . $dataKaryawan->nama_lengkap,
+                    'message' => '<b> ' . session('name') . ' </b> telah <span class="bg-green-700">menyetujui</span> persetujuan untuk pemberhentian kontrak kerja <b>' . $dataKaryawan->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -602,8 +630,9 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Menyetujui Pemberhentian Kontrak : ' . $dataKaryawan->nama_lengkap,
+                'message' => 'Anda telah <span class="bg-green-700">menyetujui</span> persetujuan untuk pemberhentian kontrak kerja <b>' . $dataKaryawan->nama_lengkap . '</b>',
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);
@@ -652,7 +681,7 @@ class KepsekLaporanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Kepsek : ' . session('name') . ' Menyetujui Pengangkatan Kontrak : ' . $dataKontrak->nama_lengkap,
+                    'message' => '<b> ' . session('name') . ' </b> telah <span class="bg-green-700">menyetujui</span> pengangkatan kontrak kerja <b>' . $dataKontrak->nama_lengkap . '</b>',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -663,8 +692,9 @@ class KepsekLaporanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataKepsek->id_karyawan,
-                'message' => 'Anda Menyetujui Pengangkatan Kontrak : ' . $dataKontrak->nama_lengkap,
+                'message' => 'Anda telah <span class="bg-green-700">menyetujui</span> persetujuan untuk pengangkatan kontrak kerja <b>' . $dataKontrak->nama_lengkap . '</b>',
                 'is_read' => 0,
+                'is_announc' => 1,
                 'type' => 2,
                 'created_at' => now(),
             ]);

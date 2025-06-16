@@ -29,6 +29,7 @@ class KepsekOffboardingController extends Controller
                 Carbon::now()->startOfDay(),
                 Carbon::now()->addDays(7)->endOfDay()
             ])
+            ->where('kon.status_kontrak', 1)
             ->orderBy('kon.akhir_kontrak', 'asc')
             ->paginate(10);
 
@@ -96,7 +97,7 @@ class KepsekOffboardingController extends Controller
             return redirect()->back()->with('toast_error', 'Invalid Data !');
         }
         $dataKaryawan = Karyawan::select(
-            'kon.uuid as id_kontrak',   
+            'kon.uuid as id_kontrak',
             'karyawan.id_karyawan',
             'karyawan.nama_lengkap',
             'k.nik_karyawan',

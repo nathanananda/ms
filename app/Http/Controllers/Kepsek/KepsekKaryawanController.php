@@ -59,6 +59,38 @@ class KepsekKaryawanController extends Controller
 
 
         $StatusAll = MasterStatusKaryawan::all();
+        $listWarna = [];
+
+        foreach ($StatusAll as $a) {
+            $nama = $a->status_karyawan;
+
+            switch (true) {
+                case str_contains($nama, 'Pegawai Tetap'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#137D28]';
+                    break;
+                case str_contains($nama, 'Pegawai Kontrak'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#F8901F]';
+                    break;
+                case str_contains($nama, 'Tenaga Honorer'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#1FB7F8]';
+                    break;
+                case str_contains($nama, 'Pegawai PPPK'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#00668C]';
+                    // dd($nama);
+                    break;
+                case str_contains($nama, 'PNS'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#D3A409]';
+                    break;
+                case str_contains($nama, 'Magang'):
+                    $listWarna[$a->status_karyawan] = 'bg-[#F8901F]';
+                    break;
+                default:
+                    $listWarna[$a->status_karyawan] = 'bg-[#565656]';
+                    break;
+            }
+        }
+
+
         $dataStatus = Karyawan::join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
             ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
             ->where('karyawan.status_aktif', true)
@@ -72,7 +104,8 @@ class KepsekKaryawanController extends Controller
             'StatusAll' => $dataStatus,
             'listData' => $listData,
             'totalAll' => $totalAll,
-            'masterStatus' => $StatusAll
+            'masterStatus' => $StatusAll,
+            'listWarna' => $listWarna
         ]);
     }
 
@@ -497,6 +530,65 @@ class KepsekKaryawanController extends Controller
 
     public function StoreKaryawan(Request $request)
     {
+
+        $validated = $request->validate([
+            // Tahap 1 - Data Pribadi
+            'nama_lengkap' => 'required',
+            'nik' => 'required',
+            'jenis_kelamin' => 'required',
+            'tempat_lahir' => 'required',
+            'tanggal_lahir' => 'required|date',
+            'agama' => 'required',
+            'status_nikah' => 'required',
+            'no_hp' => 'required',
+            'alamat' => 'required',
+            'provinsi' => 'required',
+            'kota' => 'required',
+            'kecamatan' => 'required',
+            'kelurahan' => 'required',
+            'kode_pos' => 'required',
+
+            // Tahap 2 - Pendidikan
+            'tingkat_pendidikan' => 'required',
+            'institusi' => 'required',
+            'jurusan' => 'required',
+            'tahun_masuk' => 'required',
+            'tahun_lulus' => 'required',
+            'gelar' => 'required',
+            'nilai' => 'required',
+
+            // Kontak Darurat
+            'nama_kontak_darurat' => 'required',
+            'nomor_kontak_darurat' => 'required',
+            'hubungan_kontak_darurat' => 'required',
+
+            // Data Kepegawaian
+            'nik_karyawan' => 'required',
+            'email_kantor' => 'required|email',
+            'id_status_karyawan' => 'required',
+            'divisi' => 'required',
+            'departemen' => 'required',
+            'id_section' => 'required',
+            'id_jabatan' => 'required',
+            'atasan_langsung' => 'required',
+            'alasan_keluar' => 'nullable',
+
+            // Tahap 3 - Penggajian
+            'kode_golongan' => 'required',
+            'id_jenis_tunjangan' => 'required',
+            'npwp' => 'required',
+            'no_rekening' => 'required',
+            'no_bpjs_kesehatan' => 'required',
+            'no_bpjs_ketenagakerjaan' => 'required',
+            'no_bpjs_pensiun' => 'required',
+
+            // Kontrak
+            'awal_kontrak' => 'required|date',
+            'akhir_kontrak' => 'required|date|after_or_equal:awal_kontrak',
+            'file_kontrak' => 'required|file|mimes:pdf,doc,docx|max:2048',
+        ]);
+
+
         DB::beginTransaction();
 
         try {

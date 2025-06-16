@@ -53,6 +53,63 @@ class AdminKaryawanController extends Controller
 
     public function StoreKaryawan(Request $request)
     {
+        $validated = $request->validate([
+            // Tahap 1 - Data Pribadi
+            'nama_lengkap' => 'required',
+            'nik' => 'required',
+            'jenis_kelamin' => 'required',
+            'tempat_lahir' => 'required',
+            'tanggal_lahir' => 'required|date',
+            'agama' => 'required',
+            'status_nikah' => 'required',
+            'no_hp' => 'required',
+            'alamat' => 'required',
+            'provinsi' => 'required',
+            'kota' => 'required',
+            'kecamatan' => 'required',
+            'kelurahan' => 'required',
+            'kode_pos' => 'required',
+
+            // Tahap 2 - Pendidikan
+            'tingkat_pendidikan' => 'required',
+            'institusi' => 'required',
+            'jurusan' => 'required',
+            'tahun_masuk' => 'required',
+            'tahun_lulus' => 'required',
+            'gelar' => 'required',
+            'nilai' => 'required',
+
+            // Kontak Darurat
+            'nama_kontak_darurat' => 'required',
+            'nomor_kontak_darurat' => 'required',
+            'hubungan_kontak_darurat' => 'required',
+
+            // Data Kepegawaian
+            'nik_karyawan' => 'required',
+            'email_kantor' => 'required|email',
+            'id_status_karyawan' => 'required',
+            'divisi' => 'required',
+            'departemen' => 'required',
+            'id_section' => 'required',
+            'id_jabatan' => 'required',
+            'atasan_langsung' => 'required',
+            'alasan_keluar' => 'nullable',
+
+            // Tahap 3 - Penggajian
+            'kode_golongan' => 'required',
+            'id_jenis_tunjangan' => 'required',
+            'npwp' => 'required',
+            'no_rekening' => 'required',
+            'no_bpjs_kesehatan' => 'required',
+            'no_bpjs_ketenagakerjaan' => 'required',
+            'no_bpjs_pensiun' => 'required',
+
+            // Kontrak
+            'awal_kontrak' => 'required|date',
+            'akhir_kontrak' => 'required|date|after_or_equal:awal_kontrak',
+            'file_kontrak' => 'required|file|mimes:pdf,doc,docx|max:2048',
+        ]);
+        
         DB::beginTransaction();
 
         try {
@@ -175,7 +232,7 @@ class AdminKaryawanController extends Controller
                 Notif::create([
                     'id_notif' => Str::uuid(),
                     'notif_owner' => $k->id_karyawan,
-                    'message' => 'Admin : ' . session('name') . 'Mengajukan Penambahan Karyawan : ' . $request->nama_lengkap,
+                    'message' => '<b>' . session('name') . '</b> meminta persetujuan untuk persetujuan penambahan karyawan kerja <b>' . $request->nama_lengkap . ' </b> ',
                     'is_read' => 0,
                     'type' => 2,
                     'created_at' => now(),
@@ -186,7 +243,7 @@ class AdminKaryawanController extends Controller
             Notif::create([
                 'id_notif' => Str::uuid(),
                 'notif_owner' => $dataAdmin->id_karyawan,
-                'message' => 'Anda Mengajukan Penambahan Karyawan : ' . $request->nama_lengkap,
+                'message' => 'Anda meminta persetujuan untuk persetujuan penambahan karyawan kerja  : <b>' . $request->nama_lengkap .  '</b> ',
                 'is_read' => 0,
                 'type' => 2,
                 'created_at' => now(),
@@ -270,6 +327,7 @@ class AdminKaryawanController extends Controller
         $StatusAll = Karyawan::join('kepegawaian', 'kepegawaian.id_karyawan', '=', 'karyawan.id_karyawan')
             ->join('master_status_karyawan', 'master_status_karyawan.id_status_karyawan', '=', 'kepegawaian.id_status_karyawan')
             ->where('karyawan.status_aktif', true)
+            ->where('karyawan.approval_kepsek', 2)
             ->select('master_status_karyawan.status_karyawan', DB::raw('count(*) as total'))
             ->groupBy('master_status_karyawan.status_karyawan')
             ->get();
@@ -401,14 +459,20 @@ class AdminKaryawanController extends Controller
         $dataAlamat = Alamat::select(
             'alamat.*',
             'kel.nama_kelurahan',
+            'kel.id_kelurahan',
             'kec.nama_kecamatan',
+            'kec.id_kecamatan',
             'kota.nama_kota',
-            'prov.nama_provinsi'
+            'kota.id_kota',
+            'prov.nama_provinsi',
+            'prov.id_provinsi'
         )->join('master_kelurahan as kel', 'kel.id_kelurahan', '=', 'alamat.id_kelurahan')
             ->join('master_kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
             ->join('master_kota as kota', 'kota.id_kota', '=', 'kec.id_kota')
             ->join('master_provinsi as prov', 'prov.id_provinsi', '=', 'kota.id_provinsi')
-            ->where('alamat.id_karyawan', operator: $dataPribadi->id_karyawan)->first();
+            ->where('alamat.id_karyawan', operator: $dataPribadi->id_karyawan)
+            ->orderBy('alamat.created_at', 'desc');
+
 
         $dataKontak = KontakDarurat::where('id_karyawan', operator: $dataPribadi->id_karyawan)->first();
         $dataPendidikan = RiwayatPendidikan::where('id_karyawan', operator: $dataPribadi->id_karyawan)->get();
@@ -475,7 +539,8 @@ class AdminKaryawanController extends Controller
             'MasterAgama' => $MasterAgama,
             'MasterProvinsi' => $dataProvinsi,
             'dataPribadi' => $dataPribadi,
-            'dataAlamat' => $dataAlamat,
+            'dataAlamat' => $dataAlamat->get(),
+            'countAlamat' => $dataAlamat->count(),
             'dataKontak' => $dataKontak,
             'dataPendidikan' => $dataPendidikan,
             'dataKepegawaian' => $dataKepegawaian,
@@ -508,6 +573,32 @@ class AdminKaryawanController extends Controller
         Alamat::where('id_karyawan', $request->id_karyawan)->update($dataAlamat);
         return redirect()->route('admin.karyawan.update-karyawan', ['id' => $request->id_karyawan])->with('toast_success', 'Data berhasil diubah !');
     }
+
+    public function addAlamat(Request $request)
+    {
+        try {
+            $data = $request->except('_token', 'provinsi', 'kota', 'kecamatan');
+            $data['id_alamat'] = Str::uuid();
+            Alamat::create($data);
+            return redirect()->route('admin.karyawan.update-karyawan', ['id' => $request->id_karyawan])->with('toast_success', 'Alamat berhasil ditambahkan !');
+        } catch (\Throwable $th) {
+            return redirect()->route('admin.karyawan.update-karyawan', ['id' => $request->id_karyawan])->with('toast_error', 'Alamat gagal ditambahkan !');
+        }
+    }
+
+    public function updateAlamat(Request $request)
+    {
+        try {
+            $data = $request->except('_token', 'provinsi', 'kota', 'kecamatan');
+            $dataAlamat = Alamat::where('id_alamat', $request->id_alamat)->first();
+            $dataAlamat->update($data);
+            return redirect()->route('admin.karyawan.update-karyawan', ['id' => $dataAlamat->id_karyawan])->with('toast_success', 'Alamat berhasil diubah !');
+        } catch (\Throwable $th) {
+            $dataAlamat = Alamat::where('id_alamat', $request->id_alamat)->first();
+            return redirect()->route('admin.karyawan.update-karyawan', ['id' => $dataAlamat->id_karyawan])->with('toast_error', 'Alamat gagal diubah : ' . $th->getMessage());
+        }
+    }
+
 
 
     public function addPendidikan(Request $request)

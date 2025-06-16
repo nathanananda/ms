@@ -17,7 +17,7 @@ class UserNotificationController extends Controller
             'karyawan.nama_lengkap',
         )->where('karyawan.email_pribadi', Auth::user()->email)->first();
 
-        $dataNotification = Notif::where('notif_owner', $dataPribadi->id_karyawan)->get();
+        $dataNotification = Notif::where('notif_owner', $dataPribadi->id_karyawan)->orderBy('created_at', 'desc')->get();
 
         $UnreadNotif = Notif::where('notif_owner', $dataPribadi->id_karyawan)->where('is_read', 0)->count();
         $AllNotif = Notif::where('notif_owner', $dataPribadi->id_karyawan)->count();

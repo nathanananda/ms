@@ -391,10 +391,11 @@
                         </div>
                     </div>
                 @endif
+
             </div>
-            @foreach ($dataAlamat as $key)
+            @foreach ($dataAlamat as $index => $key)
                 <div class="font-GabaritoRegular text-2xl my-5">Alamat {{ $key->jenis_alamat }}</div>
-                <form action="">
+                <form action="{{ route('admin.profile.update-alamat') }}" method="POST">
                     @csrf
                     <input type="hidden" name="id_alamat" value="{{ $key->id_alamat }}">
                     <table class="w-full border border-gray-300 text-sm text-left text-gray-500">
@@ -415,7 +416,7 @@
                                         </option>
                                         <option value="Menumpang"
                                             {{ $key->status_rumah == 'Menumpang' ? 'selected' : '' }}>
-                                            Milik Sendiri
+                                            Menumpang
                                         </option>
                                     </select>
                                 </td>
@@ -448,11 +449,16 @@
                                         $provinsi = \App\Models\MasterProvinsi::orderBy('nama_provinsi')->get();
                                     @endphp
                                     <!-- Provinsi -->
-                                    <select name="provinsi" id="id_provinsi_update"
-                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <select name="provinsi" id="provinsi_{{ $index }}"
+                                        id="provinsi_{{ $index }}" data-index="{{ $index }}"
+                                        data-selected="{{ $key->id_provinsi }}"
+                                        class="w-full
+                                        border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2
+                                        focus:ring-blue-500">
                                         <option value="">Pilih Provinsi</option>
                                         @foreach ($provinsi as $item)
-                                            <option value="{{ $item->id_provinsi }}">
+                                            <option value="{{ $item->id_provinsi }}"
+                                                {{ $key->id_provinsi == $item->id_provinsi ? 'selected' : '' }}>
                                                 {{ $item->nama_provinsi }}</option>
                                         @endforeach
                                     </select>
@@ -463,8 +469,11 @@
                                     Kota
                                 </td>
                                 <td class="px-4 py-2">
-                                    <select name="kota" id="id_kota_update"
-                                        class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <select name="kota" id="kota_{{ $index }}"
+                                        data-selected="{{ $key->id_kota }}""
+                                        class="w-full
+                                        mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2
+                                        focus:ring-blue-500">
                                         <option value="">Pilih Kota</option>
                                     </select>
                                 </td>
@@ -474,7 +483,8 @@
                                     Kecamatan
                                 </td>
                                 <td class="px-4 py-2">
-                                    <select name="kecamatan" id="id_kecamatan_update"
+                                    <select name="kecamatan" id="kecamatan_{{ $index }}"
+                                        data-selected="{{ $key->id_kecamatan }}"
                                         class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">Pilih Kecamatan</option>
                                     </select>
@@ -485,8 +495,11 @@
                                     Kelurahan
                                 </td>
                                 <td class="px-4 py-2">
-                                    <select name="id_kelurahan" id="id_kelurahan_update"
-                                        class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <select name="id_kelurahan" id="kelurahan_{{ $index }}"
+                                        data-selected="{{ $key->id_kelurahan }}""
+                                        class="w-full
+                                        mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2
+                                        focus:ring-blue-500">
                                         <option value="">Pilih Kelurahan</option>
                                     </select>
                                 </td>
@@ -501,6 +514,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="flex justify-end items-center my-5">
+                        <button
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button>
+                    </div>
                 </form>
             @endforeach
         </div>
@@ -1033,6 +1050,82 @@
                 $('#kelurahan').html(html);
                 $('#kode_pos').val('');
             });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('[id^=provinsi_]').each(function() {
+                const index = $(this).data('index');
+                const selectedProv = $(this).data('selected');
+                const selectedKota = $('#kota_' + index).data('selected');
+                const selectedKec = $('#kecamatan_' + index).data('selected');
+                const selectedKel = $('#kelurahan_' + index).data('selected');
+
+                if (selectedProv) {
+                    loadKota(selectedProv, index, selectedKota, selectedKec, selectedKel);
+                }
+            });
+
+            $(document).on('change', '[id^=provinsi_]', function() {
+                const provId = $(this).val();
+                const index = $(this).data('index');
+                loadKota(provId, index);
+            });
+
+            $(document).on('change', '[id^=kota_]', function() {
+                const kotaId = $(this).val();
+                const index = this.id.split('_')[1];
+                loadKecamatan(kotaId, index);
+            });
+
+            $(document).on('change', '[id^=kecamatan_]', function() {
+                const kecId = $(this).val();
+                const index = this.id.split('_')[1];
+                loadKelurahan(kecId, index);
+            });
+
+            function loadKota(provId, index, selectedKota = null, selectedKec = null, selectedKel = null) {
+                $.get('/get-kota/' + provId, function(data) {
+                    const kotaSelect = $('#kota_' + index).html('<option value="">Pilih Kota</option>');
+                    data.forEach(item => {
+                        kotaSelect.append(
+                            `<option value="${item.id_kota}" ${selectedKota == item.id_kota ? 'selected' : ''}>${item.nama_kota}</option>`
+                        );
+                    });
+
+                    if (selectedKota) {
+                        loadKecamatan(selectedKota, index, selectedKec, selectedKel);
+                    }
+                });
+            }
+
+            function loadKecamatan(kotaId, index, selectedKec = null, selectedKel = null) {
+                $.get('/get-kecamatan/' + kotaId, function(data) {
+                    const kecSelect = $('#kecamatan_' + index).html(
+                        '<option value="">Pilih Kecamatan</option>');
+                    data.forEach(item => {
+                        kecSelect.append(
+                            `<option value="${item.id_kecamatan}" ${selectedKec == item.id_kecamatan ? 'selected' : ''}>${item.nama_kecamatan}</option>`
+                        );
+                    });
+
+                    if (selectedKec) {
+                        loadKelurahan(selectedKec, index, selectedKel);
+                    }
+                });
+            }
+
+            function loadKelurahan(kecId, index, selectedKel = null) {
+                $.get('/get-kelurahan/' + kecId, function(data) {
+                    const kelSelect = $('#kelurahan_' + index).html(
+                        '<option value="">Pilih Kelurahan</option>');
+                    data.forEach(item => {
+                        kelSelect.append(
+                            `<option value="${item.id_kelurahan}" ${selectedKel == item.id_kelurahan ? 'selected' : ''}>${item.nama_kelurahan}</option>`
+                        );
+                    });
+                });
+            }
         });
     </script>
     <script>

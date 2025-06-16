@@ -68,6 +68,93 @@
             </div>
         </div>
     </div>
+    <div class="w-full h-fit bg-white p-5 rounded-xl my-5">
+        <div class="flex justify-start items-center">
+            <h3 class="font-GabaritoRegular text-2xl">List Karyawan Yang Baru On Boarding</h3>
+        </div>
+        <table class="table-auto w-full text-sm text-left text-gray-700 border border-gray-300" id="laporan-table">
+            <thead class="">
+                <tr>
+                    <th class="px-4 py-3 font-semibold text-gray-900 border-r border-gray-300">No</th>
+                    <th class="px-4 py-3 font-semibold text-gray-900 border-r border-gray-300">Nama Karyawan</th>
+                    <th class="px-4 py-3 font-semibold text-gray-900 border-r ">Email</th>
+                    <th class="px-4 py-3 font-semibold text-gray-900 border-r">Jabatan </th>
+                    <th class="px-4 py-3 font-semibold text-gray-900 border-r">Status</th>
+                    <th class="px-4 py-3 font-semibold text-gray-900 border-r">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($dataOnboarding as $i => $a)
+                    <tr class="border-t border-gray-300 hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-medium text-gray-900 border-r border-gray-300">{{ $i + 1 }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">{{ $a->nama_lengkap }}</td>
+                        <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">{{ $a->email_kantor }}</td>
+                        <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">{{ $a->jabatan }}</td>
+                        <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">{{ $a->status_karyawan }}</td>
+                        <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">
+                            <a href="{{ route('kepsek.karyawan.detail-onboarding', ['id' => $a->id_karyawan]) }}"
+                                class="bg-blue-400 p-1.5 rounded text-white">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <div class="w-full h-fit bg-white rounded-xl p-5 my-5">
+        <h3 class="font-GabaritoRegular text-xl">List Karyawan yang Kontraknya akan segera berakhir</h3>
+        <div class="my-5">
+            @if ($dataOffboarding->count() > 0)
+                @foreach ($dataOffboarding as $a)
+                    <div class="flex justify-between items-center border border-slate-300 p-3 rounded-lg">
+                        <div class="flex justify-start items-center space-x-3">
+                            <img src="{{ asset('assets/profile-default-2.jpg') }}" class="rounded-full w-16 h-16 shrink-0"
+                                alt="">
+                            <div class="flex flex-col justify-center leading-tight space-y-[1px]">
+                                <div class="flex items-center space-x-3">
+                                    <p class="font-GabaritoSemiBold text-lg leading-tight">{{ $a->nama_lengkap }}</p>
+                                    <p class="font-GabaritoRegular text-base text-gray-600">{{ $a->status_karyawan }}</p>
+                                </div>
+                                <p class="font-GabaritoRegular text-sm leading-tight text-gray-800">{{ $a->jabatan }}</p>
+                                <p class="font-GabaritoRegular text-sm leading-tight text-gray-800">
+                                    Kontrak tersisa <span class="font-GabaritoMedium text-red-600">{{ $a->sisa_kontrak }}
+                                        Hari</span>,
+                                    berakhir {{ $a->akhir_kontrak }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center space-x-3">
+                            <form action="{{ route('kepsek.karyawan.offboarding.perpanjang') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="id_karyawan" value="{{ $a->id_karyawan }}">
+                                <button
+                                    class="font-GabaritoRegular text-white px-4 py-1 rounded-full bg-blue-800 text-sm hover:bg-blue-600">Perpanjang</button>
+                            </form>
+                            <form action="{{ route('kepsek.karyawan.offboarding.pengangkatan') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="id_karyawan" value="{{ $a->id_karyawan }}">
+                                <button
+                                    class="font-GabaritoRegular text-white px-4 py-1 rounded-full bg-green-800 text-sm hover:bg-green-600">Pengangkatan</button>
+                            </form>
+                            <form action="{{ route('kepsek.karyawan.offboarding.pemberhentian') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="id_karyawan" value="{{ $a->id_karyawan }}">
+                                <button
+                                    class="font-GabaritoRegular text-white px-4 py-1 rounded-full bg-red-800 text-sm hover:bg-red-600">Lay
+                                    Off</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="bg-slate-400 w-full h-full rounded-lg p-5 flex justify-center items-center">
+                    <p class="font-GabaritoRegular text-white">Data Kosong !</p>
+                </div>
+            @endif
+        </div>
+    </div>
 @endsection
 
 @section('content-script')

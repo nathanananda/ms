@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminOnboardingController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\AlamatController;
 use App\Http\Controllers\AllLoginController;
+use App\Http\Controllers\Kepsek\KepsekChangePasswordController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
 use App\Http\Controllers\Kepsek\KepsekKaryawanController;
 use App\Http\Controllers\Kepsek\KepsekLaporanController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\User\UserChangePasswordController;
 use App\Http\Controllers\User\UserFinansialController;
 use App\Http\Controllers\User\UserNotificationController;
 use App\Http\Controllers\User\UserProfileController;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -92,6 +94,9 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
         Route::get('getReligion', [KepsekDashboardController::class, 'getReligion'])->name('kepsek.getReligion');
         Route::get('/notification', [KepsekNotifController::class, 'index'])->name('kepsek.notification');
         Route::post('notification/read/{id}', [KepsekNotifController::class, 'updateRead'])->name('kepsek.notification.read');
+
+        Route::get('/change-pass', [KepsekChangePasswordController::class, 'index'])->name('kepsek.change-pass');
+        Route::post('change-pass/store', [KepsekChangePasswordController::class, 'storeChangePass'])->name('kepsek.change-pass.store');
 
         Route::prefix('profile')->group(function () {
             Route::get('/', [KepsekProfileController::class, 'profile'])->name('kepsek.profile');
@@ -204,6 +209,11 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
                 Route::get('delete/{id}', [AdminKaryawanController::class, 'deletePendidikan'])->name('admin.detail.karyawan.delete-pendidikan');
             });
 
+            Route::prefix('alamat')->group(function () {
+                Route::post('add', [AdminKaryawanController::class, 'addAlamat'])->name('admin.detail.karyawan.add-alamat');
+                Route::post('update', [AdminKaryawanController::class, 'updateAlamat'])->name('admin.detail.karyawan.update-alamat');
+            });
+
             Route::post('updatePenggajian', [AdminKaryawanController::class, 'updatePenggajian'])->name('admin.detail.karyawan.updatePenggajian');
             Route::post('updateKepegawaian', [AdminKaryawanController::class, 'updateKepegawaian'])->name('admin.detail.karyawan.updateKepegawaian');
             Route::post('updateKontak', [AdminKaryawanController::class, 'updateKontakDarurat'])->name('admin.detail.karyawan.updateKontak');
@@ -253,6 +263,7 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
 
             Route::prefix('alamat')->group(function () {
                 Route::post('add', [AdminProfileController::class, 'addAlamat'])->name('admin.profile.add-alamat');
+                Route::post('update', [AdminProfileController::class, 'updateAlamat'])->name('admin.profile.update-alamat');
             });
 
 
@@ -277,6 +288,13 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
         if (!Storage::exists($path)) {
             abort(404);
         }
-        return Storage::download($path);
+
+        $mimeType = Storage::mimeType($path);
+        $fileContent = Storage::get($path);
+
+        return Response::make($fileContent, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $file . '"'
+        ]);
     })->name('show.file_kontrak');
 });

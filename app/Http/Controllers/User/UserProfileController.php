@@ -68,7 +68,8 @@ class UserProfileController extends Controller
             ->join('master_kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
             ->join('master_kota as kota', 'kota.id_kota', '=', 'kec.id_kota')
             ->join('master_provinsi as prov', 'prov.id_provinsi', '=', 'kota.id_provinsi')
-            ->where('alamat.id_karyawan', operator: $dataPribadi->id_karyawan);
+            ->where('alamat.id_karyawan', operator: $dataPribadi->id_karyawan)
+            ->orderBy('alamat.created_at', 'desc');
 
         $dataKontak = KontakDarurat::where('id_karyawan', operator: $dataPribadi->id_karyawan)->where('deleted_at', null)->get();
 
@@ -141,7 +142,7 @@ class UserProfileController extends Controller
             $dataAlamat = Alamat::where('id_alamat', $request->id_alamat)->first();
             $dataAlamat->update($data);
             return redirect()->route('user.profile')->with('toast_success', 'Alamat berhasil diubah !');
-        } catch ( \Throwable $th) {
+        } catch (\Throwable $th) {
             return redirect()->route('user.profile')->with('toast_error', 'Alamat gagal diubah : ' . $th->getMessage());
         }
     }
@@ -209,7 +210,7 @@ class UserProfileController extends Controller
                         Notif::create([
                             'id_notif' => Str::uuid(),
                             'notif_owner' => $admin->id_karyawan,
-                            'message' => $dataKaryawan->nama_lengkap . ' mengajukan perubahan data penggajian',
+                            'message' => '<b>' . $dataKaryawan->nama_lengkap . '</b> meminta persetujuan untuk <b>perubahan data penggajian</b>',
                             'is_read' => 0,
                             'type' => 1,
                         ]);
@@ -345,7 +346,7 @@ class UserProfileController extends Controller
                         Notif::create([
                             'id_notif' => Str::uuid(),
                             'notif_owner' => $admin->id_karyawan,
-                            'message' => $dataKaryawan->nama_lengkap . ' mengajukan perubahan data pribadi',
+                            'message' => '<b>' . $dataKaryawan->nama_lengkap . '</b> meminta persetujuan untuk <b>perubahan data pribadi</b>',
                             'is_read' => 0,
                             'type' => 1,
                         ]);

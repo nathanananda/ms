@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Karyawan;
 use App\Models\MasterStatusKaryawan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,9 +23,59 @@ class AdminDashboardController extends Controller
                 ->count();
         }
 
+        $dataOnboarding = Karyawan::select(
+            'karyawan.id_karyawan',
+            'karyawan.nama_lengkap',
+            'k.email_kantor',
+            'msk.status_karyawan',
+            'mj.jabatan',
+            'kon.awal_kontrak'
+        )
+            ->join('kepegawaian as k', 'k.id_karyawan', '=', 'karyawan.id_karyawan')
+            ->join('master_status_karyawan as msk', 'k.id_status_karyawan', '=', 'msk.id_status_karyawan')
+            ->join('master_jabatan as mj', 'k.id_jabatan', '=', 'mj.id_jabatan')
+            ->join('kontrak_karyawan as kon', 'kon.id_karyawan', '=', 'k.id_karyawan')
+            ->get();
+
+        $today = Carbon::now();
+        $minDate = $today->copy()->subDays(8)->startOfDay(); // 8 hari ke belakang
+        $maxDate = $today->copy()->endOfDay();               // Sampai hari ini
+
+        $dataFiltered = $dataOnboarding->filter(function ($item) use ($minDate, $maxDate) {
+            $awalKontrak = Carbon::parse($item->awal_kontrak);
+            return $awalKontrak->between($minDate, $maxDate);
+        })->values()->take(5);
+
+        $dataOffboarding = Karyawan::select(
+            'karyawan.nama_lengkap',
+            'karyawan.id_karyawan',
+            'jab.jabatan',
+            'msk.status_karyawan',
+            'kon.akhir_kontrak',
+        )
+            ->join('kepegawaian as peg', 'peg.id_karyawan', '=', 'karyawan.id_karyawan')
+            ->join('master_jabatan as jab', 'jab.id_jabatan', '=', 'peg.id_jabatan')
+            ->join('master_status_karyawan as msk', 'msk.id_status_karyawan', '=', 'peg.id_status_karyawan')
+            ->join('kontrak_karyawan as kon', 'kon.id_karyawan', '=', 'peg.id_karyawan')
+            ->whereBetween('kon.akhir_kontrak', [
+                Carbon::now()->startOfDay(),
+                Carbon::now()->addDays(7)->endOfDay()
+            ])
+            ->where('kon.status_kontrak', 1)
+            ->orderBy('kon.akhir_kontrak', 'asc')
+            ->limit(5)->get();
+
+        foreach ($dataOffboarding as $d) {
+            $akhirKontrak = Carbon::parse($d->akhir_kontrak)->endOfDay(); // anggap aktif sampai jam 23:59
+            $d->sisa_kontrak = Carbon::now()->diffInDays($akhirKontrak);
+            $d->akhir_kontrak = $akhirKontrak->format('d F Y');
+        }
+
         return view('admin.dashboard', [
             'countKaryawan' => $countKaryawan,
-            'countStatus' => $countStatus
+            'countStatus' => $countStatus,
+            'dataOnboarding' => $dataFiltered,
+            'dataOffboarding' => $dataOffboarding
         ]);
     }
 

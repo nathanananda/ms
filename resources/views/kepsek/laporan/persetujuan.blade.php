@@ -29,6 +29,23 @@
             </nav>
         </div>
     </div>
+    <div class="flex justify-end items-center mb-5">
+        <div class="w-fit h-14 bg-white rounded-lg flex justify-normal items-center p-3 space-x-3">
+            <h3 class="font-GabaritoRegular text-base">Status Persetujuan</h3>
+            <h3 class="font-GabaritoRegular text-base">{{ Carbon\Carbon::now()->format('d/m/Y') }}</h3>
+            <div class="space-x-2">
+                <span class="font-GabaritoRegular text-xs bg-[#137D28] py-1 px-2 rounded-lg text-white">
+                    Disetujui {{ $countStatus['disetujui'] }}
+                </span>
+                <span class="font-GabaritoRegular text-xs bg-[#FFCD00] py-1 px-2 rounded-lg text-white">
+                    Menunggu {{ $countStatus['menunggu'] }}
+                </span>
+                <span class="font-GabaritoRegular text-xs bg-[#FF2F28] py-1 px-2 rounded-lg text-white">
+                    Ditolak {{ $countStatus['ditolak'] }}
+                </span>
+            </div>
+        </div>
+    </div>
 
     <div class="w-full h-fit bg-white p-5 rounded-xl">
         <table class="table-auto w-full text-sm text-left text-gray-700 border border-gray-300" id="laporan-table">
@@ -53,7 +70,8 @@
                         <td class="px-4 py-3 text-gray-600 italic border-r border-gray-300">
                             <div class="flex justify-between items-center">
                                 <!-- Tombol Tolak & Modal -->
-                                <a href="{{ route('kepsek.laporan.persetujuan.detail', ['id' => $i->uuid]) }}" class="bg-blue-400 py-1 px-2 rounded text-white" type="button">
+                                <a href="{{ route('kepsek.laporan.persetujuan.detail', ['id' => $i->uuid]) }}"
+                                    class="bg-blue-400 py-1 px-2 rounded text-white" type="button">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
 

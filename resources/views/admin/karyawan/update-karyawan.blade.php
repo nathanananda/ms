@@ -185,9 +185,13 @@
                                 <select name="status_nikah"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="">Pilih agama</option>
-                                    <option value="Menikah" {{ $dataPribadi->status_nikah == 'Menikah' ? 'selected' : '' }}>Menikah</option>
-                                    <option value="Belum Menikah" {{ $dataPribadi->status_nikah == 'Belum Menikah' ? 'selected' : '' }}>Belum Menikah</option>
-                                    <option value="Cerai" {{ $dataPribadi->status_nikah == 'Cerai' ? 'selected' : '' }}>Cerai</option>
+                                    <option value="Menikah"
+                                        {{ $dataPribadi->status_nikah == 'Menikah' ? 'selected' : '' }}>Menikah</option>
+                                    <option value="Belum Menikah"
+                                        {{ $dataPribadi->status_nikah == 'Belum Menikah' ? 'selected' : '' }}>Belum Menikah
+                                    </option>
+                                    <option value="Cerai" {{ $dataPribadi->status_nikah == 'Cerai' ? 'selected' : '' }}>
+                                        Cerai</option>
                                 </select>
                             </td>
                         </tr>
@@ -259,59 +263,310 @@
             </form>
         </div>
         <div class="my-5 hidden tab-content" id="alamat">
-            <p class="font-GabaritoRegular text-2xl mb-5">Alamat</p>
-            <table class="w-full border border-gray-300 text-sm text-left text-gray-500">
-                <tbody>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Status Rumah</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->status_rumah }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Jenis Alamat</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->jenis_alamat }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Alamat</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->alamat }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Provinsi</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->nama_provinsi }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Kota</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->nama_kota }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Kecamatan</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->nama_kecamatan }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Kelurahan</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->nama_kelurahan }}
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Kode Pos</td>
-                        <td class="px-4 py-2 text-gray-500 italic">
-                            {{ $dataAlamat->kodepos }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="flex justify-between items-center my-5">
+                <p class="font-GabaritoRegular text-2xl mb-5">Alamat Karyawan</p>
+
+
+                @if ($countAlamat != 2)
+                    <!-- Modal toggle -->
+                    <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                        class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                        type="button">
+                        Tambah Alamat
+                    </button>
+
+                    <!-- Main modal -->
+                    <div id="default-modal" tabindex="-1" aria-hidden="true"
+                        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                        <div class="relative p-4 w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow-sm">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
+                                    <h3 class="text-xl font-semibold text-gray-900">
+                                        Add New Alamat
+                                    </h3>
+                                    <button type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                                        data-modal-hide="default-modal">
+                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-4 md:p-5 space-y-4">
+                                    <form action="{{ route('admin.detail.karyawan.add-alamat') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="id_karyawan"
+                                            value="{{ $dataPribadi->id_karyawan }}">
+                                        <table class="w-full border border-gray-300 text-sm text-left text-gray-500">
+                                            <tbody>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Status
+                                                        Rumah</td>
+                                                    <td class="px-4 py-2 text-gray-500 italic">
+                                                        <select id="status_rumah" name="status_rumah"
+                                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                            <option selected>Pilih Status Rumah</option>
+                                                            <option value="Sewa">
+                                                                Sewa
+                                                            </option>
+                                                            <option value="Kontrak">
+                                                                Kontrak</option>
+                                                            <option value="Milik Sendiri">
+                                                                Milik Sendiri
+                                                            </option>
+                                                            <option value="Menumpang">
+                                                                Menumpang</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Jenis
+                                                        Alamat</td>
+                                                    <td class="px-4 py-2 text-gray-500 italic">
+                                                        <select id="jenis_alamat" name="jenis_alamat"
+                                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                            @if ($countAlamat < 2)
+                                                                @if ($dataAlamat[0]->jenis_alamat == 'Domisili')
+                                                                    <option value="KTP">KTP</option>
+                                                                @elseif ($dataAlamat[0]->jenis_alamat == 'KTP')
+                                                                    <option value="Domisili" selected>Domisili</option>
+                                                                @endif
+                                                            @endif
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Alamat
+                                                    </td>
+                                                    <td class="px-4 py-2 text-gray-500 italic">
+                                                        <input type="text" name="alamat"
+                                                            class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                            required />
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Provinsi
+                                                    </td>
+                                                    <td class="px-4 py-2">
+                                                        @php
+                                                            $provinsi = \App\Models\MasterProvinsi::orderBy(
+                                                                'nama_provinsi',
+                                                            )->get();
+                                                        @endphp
+                                                        <!-- Provinsi -->
+                                                        <select name="provinsi" id="provinsi"
+                                                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                            <option value="">Pilih Provinsi</option>
+                                                            @foreach ($provinsi as $item)
+                                                                <option value="{{ $item->id_provinsi }}">
+                                                                    {{ $item->nama_provinsi }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Kota
+                                                    </td>
+                                                    <td class="px-4 py-2">
+                                                        <select name="kota" id="kota"
+                                                            class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                            <option value="">Pilih Kota</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Kecamatan
+                                                    </td>
+                                                    <td class="px-4 py-2">
+                                                        <select name="kecamatan" id="kecamatan"
+                                                            class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                            <option value="">Pilih Kecamatan</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Kelurahan
+                                                    </td>
+                                                    <td class="px-4 py-2">
+                                                        <select name="id_kelurahan" id="kelurahan"
+                                                            class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                            <option value="">Pilih Kelurahan</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                                        Kode
+                                                        Pos</td>
+                                                    <td class="px-4 py-2 text-gray-500 italic">
+                                                        <input type="text" name="kodepos"
+                                                            class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                            required />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="flex justify-end items-end my-5">
+                                            <button
+                                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+            </div>
+            @foreach ($dataAlamat as $index => $key)
+                <div class="font-GabaritoRegular text-2xl my-5">Alamat {{ $key->jenis_alamat }}</div>
+                <form action="{{ route('admin.detail.karyawan.update-alamat') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id_alamat" value="{{ $key->id_alamat }}">
+                    <table class="w-full border border-gray-300 text-sm text-left text-gray-500">
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Status Rumah</td>
+                                <td class="px-4 py-2 text-gray-500 italic">
+                                    <select id="status_rumah" name="status_rumah"
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option selected>Pilih Status Rumah</option>
+                                        <option value="Sewa" {{ $key->status_rumah == 'Sewa' ? 'selected' : '' }}>
+                                            Sewa
+                                        </option>
+                                        <option value="Kontrak" {{ $key->status_rumah == 'Kontrak' ? 'selected' : '' }}>
+                                            Kontrak</option>
+                                        <option value="Milik Sendiri"
+                                            {{ $key->status_rumah == 'Milik Sendiri' ? 'selected' : '' }}>Milik Sendiri
+                                        </option>
+                                        <option value="Menumpang"
+                                            {{ $key->status_rumah == 'Menumpang' ? 'selected' : '' }}>
+                                            Menumpang
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Jenis Alamat</td>
+                                <td class="px-4 py-2 text-gray-500 italic">
+                                    <select id="jenis_alamat" name="jenis_alamat"
+                                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option selected>Pilih Jenis Alamat</option>
+                                        <option value="{{ $key->jenis_alamat }}" selected>{{ $key->jenis_alamat }}
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Alamat</td>
+                                <td class="px-4 py-2 text-gray-500 italic">
+                                    <input type="text" name="alamat" value="{{ $key->alamat }}"
+                                        class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required />
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                    Provinsi
+                                </td>
+                                <td class="px-4 py-2">
+                                    @php
+                                        $provinsi = \App\Models\MasterProvinsi::orderBy('nama_provinsi')->get();
+                                    @endphp
+                                    <!-- Provinsi -->
+                                    <select name="provinsi" id="provinsi_{{ $index }}"
+                                        id="provinsi_{{ $index }}" data-index="{{ $index }}"
+                                        data-selected="{{ $key->id_provinsi }}"
+                                        class="w-full
+                                        border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2
+                                        focus:ring-blue-500">
+                                        <option value="">Pilih Provinsi</option>
+                                        @foreach ($provinsi as $item)
+                                            <option value="{{ $item->id_provinsi }}"
+                                                {{ $key->id_provinsi == $item->id_provinsi ? 'selected' : '' }}>
+                                                {{ $item->nama_provinsi }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                    Kota
+                                </td>
+                                <td class="px-4 py-2">
+                                    <select name="kota" id="kota_{{ $index }}"
+                                        data-selected="{{ $key->id_kota }}""
+                                        class="w-full
+                                        mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2
+                                        focus:ring-blue-500">
+                                        <option value="">Pilih Kota</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                    Kecamatan
+                                </td>
+                                <td class="px-4 py-2">
+                                    <select name="kecamatan" id="kecamatan_{{ $index }}"
+                                        data-selected="{{ $key->id_kecamatan }}"
+                                        class="w-full mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Pilih Kecamatan</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">
+                                    Kelurahan
+                                </td>
+                                <td class="px-4 py-2">
+                                    <select name="id_kelurahan" id="kelurahan_{{ $index }}"
+                                        data-selected="{{ $key->id_kelurahan }}""
+                                        class="w-full
+                                        mt-3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2
+                                        focus:ring-blue-500">
+                                        <option value="">Pilih Kelurahan</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">Kode Pos</td>
+                                <td class="px-4 py-2 text-gray-500 italic">
+                                    <input type="text" name="kodepos" value="{{ $key->kodepos }}"
+                                        class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex justify-end items-center my-5">
+                        <button
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button>
+                    </div>
+                </form>
+            @endforeach
         </div>
         <div class="my-5 hidden tab-content" id="kontak-darurat">
             <p class="font-GabaritoRegular text-2xl mb-5">Kontak Darurat</p>
@@ -450,9 +705,15 @@
                                 <select name="kode_golongan"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                     <option value="">Pilih golongan</option>
-                                    <option value="G01" {{ $dataPenggajian->kode_golongan == 'G01' ? 'selected' : '' }}>G01 - Golongan I</option>
-                                    <option value="G02" {{ $dataPenggajian->kode_golongan == 'G02' ? 'selected' : '' }}>G02 - Golongan II</option>
-                                    <option value="G03" {{ $dataPenggajian->kode_golongan == 'G03' ? 'selected' : '' }}>G03 - Golongan III</option>
+                                    <option value="G01"
+                                        {{ $dataPenggajian->kode_golongan == 'G01' ? 'selected' : '' }}>G01 - Golongan I
+                                    </option>
+                                    <option value="G02"
+                                        {{ $dataPenggajian->kode_golongan == 'G02' ? 'selected' : '' }}>G02 - Golongan II
+                                    </option>
+                                    <option value="G03"
+                                        {{ $dataPenggajian->kode_golongan == 'G03' ? 'selected' : '' }}>G03 - Golongan III
+                                    </option>
                                 </select>
                             </td>
                         </tr>
@@ -470,14 +731,16 @@
                         <tr class="border-b">
                             <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">No. Rekening</td>
                             <td class="px-4 py-2">
-                                <input type="text" name="no_rekening" value="{{ $dataPenggajian->no_rekening ?? '' }}"
+                                <input type="text" name="no_rekening"
+                                    value="{{ $dataPenggajian->no_rekening ?? '' }}"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 italic">
                             </td>
                         </tr>
 
                         <!-- no_bpjs_kesehatan (input) -->
                         <tr class="border-b">
-                            <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">No. BPJS Kesehatan</td>
+                            <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">No. BPJS Kesehatan
+                            </td>
                             <td class="px-4 py-2">
                                 <input type="text" name="no_bpjs_kesehatan"
                                     value="{{ $dataPenggajian->no_bpjs_kesehatan ?? '' }}"
@@ -487,7 +750,8 @@
 
                         <!-- no_bpjs_ketenagakerjaan (input) -->
                         <tr class="border-b">
-                            <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">No. BPJS Ketenagakerjaan
+                            <td class="px-4 py-2 font-medium text-gray-900 border-r border-gray-300">No. BPJS
+                                Ketenagakerjaan
                             </td>
                             <td class="px-4 py-2">
                                 <input type="text" name="no_bpjs_ketenagakerjaan"
@@ -508,8 +772,7 @@
                     </tbody>
                 </table>
                 <div class="flex justify-end items-center">
-                    <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         Simpan
                     </button>
                 </div>
@@ -764,6 +1027,121 @@
 @endsection
 
 @section('content-script')
+    <script>
+        $('#provinsi').on('change', function() {
+            let id = $(this).val();
+            $('#kota').html('<option value="">Loading...</option>');
+            $.get('/get-kota/' + id, function(data) {
+                let html = '<option value="">Pilih Kota</option>';
+                data.forEach(item => html += `<option value="${item.id_kota}">${item.nama_kota}</option>`);
+                $('#kota').html(html);
+                $('#kecamatan, #kelurahan').html('<option value="">--</option>');
+                $('#kode_pos').val('');
+            });
+        });
+
+        $('#kota').on('change', function() {
+            let id = $(this).val();
+            $('#kecamatan').html('<option value="">Loading...</option>');
+            $.get('/get-kecamatan/' + id, function(data) {
+                let html = '<option value="">Pilih Kecamatan</option>';
+                data.forEach(item => html +=
+                    `<option value="${item.id_kecamatan}">${item.nama_kecamatan}</option>`);
+                $('#kecamatan').html(html);
+                $('#kelurahan').html('<option value="">--</option>');
+                $('#kode_pos').val('');
+            });
+        });
+
+        $('#kecamatan').on('change', function() {
+            let id = $(this).val();
+            $('#kelurahan').html('<option value="">Loading...</option>');
+            $.get('/get-kelurahan/' + id, function(data) {
+                let html = '<option value="">Pilih Kelurahan</option>';
+                data.forEach(item => html +=
+                    `<option value="${item.id_kelurahan}" data-kodepos="${item.kodepos}">${item.nama_kelurahan}</option>`
+                );
+                $('#kelurahan').html(html);
+                $('#kode_pos').val('');
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('[id^=provinsi_]').each(function() {
+                const index = $(this).data('index');
+                const selectedProv = $(this).data('selected');
+                const selectedKota = $('#kota_' + index).data('selected');
+                const selectedKec = $('#kecamatan_' + index).data('selected');
+                const selectedKel = $('#kelurahan_' + index).data('selected');
+
+                if (selectedProv) {
+                    loadKota(selectedProv, index, selectedKota, selectedKec, selectedKel);
+                }
+            });
+
+            $(document).on('change', '[id^=provinsi_]', function() {
+                const provId = $(this).val();
+                const index = $(this).data('index');
+                loadKota(provId, index);
+            });
+
+            $(document).on('change', '[id^=kota_]', function() {
+                const kotaId = $(this).val();
+                const index = this.id.split('_')[1];
+                loadKecamatan(kotaId, index);
+            });
+
+            $(document).on('change', '[id^=kecamatan_]', function() {
+                const kecId = $(this).val();
+                const index = this.id.split('_')[1];
+                loadKelurahan(kecId, index);
+            });
+
+            function loadKota(provId, index, selectedKota = null, selectedKec = null, selectedKel = null) {
+                $.get('/get-kota/' + provId, function(data) {
+                    const kotaSelect = $('#kota_' + index).html('<option value="">Pilih Kota</option>');
+                    data.forEach(item => {
+                        kotaSelect.append(
+                            `<option value="${item.id_kota}" ${selectedKota == item.id_kota ? 'selected' : ''}>${item.nama_kota}</option>`
+                        );
+                    });
+
+                    if (selectedKota) {
+                        loadKecamatan(selectedKota, index, selectedKec, selectedKel);
+                    }
+                });
+            }
+
+            function loadKecamatan(kotaId, index, selectedKec = null, selectedKel = null) {
+                $.get('/get-kecamatan/' + kotaId, function(data) {
+                    const kecSelect = $('#kecamatan_' + index).html(
+                        '<option value="">Pilih Kecamatan</option>');
+                    data.forEach(item => {
+                        kecSelect.append(
+                            `<option value="${item.id_kecamatan}" ${selectedKec == item.id_kecamatan ? 'selected' : ''}>${item.nama_kecamatan}</option>`
+                        );
+                    });
+
+                    if (selectedKec) {
+                        loadKelurahan(selectedKec, index, selectedKel);
+                    }
+                });
+            }
+
+            function loadKelurahan(kecId, index, selectedKel = null) {
+                $.get('/get-kelurahan/' + kecId, function(data) {
+                    const kelSelect = $('#kelurahan_' + index).html(
+                        '<option value="">Pilih Kelurahan</option>');
+                    data.forEach(item => {
+                        kelSelect.append(
+                            `<option value="${item.id_kelurahan}" ${selectedKel == item.id_kelurahan ? 'selected' : ''}>${item.nama_kelurahan}</option>`
+                        );
+                    });
+                });
+            }
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const tabButtons = document.querySelectorAll(".tab-button");

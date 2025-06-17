@@ -153,6 +153,7 @@ Route::middleware(['auth', 'isChangePass'])->group(function () {
 
             Route::post('export', [KepsekKaryawanController::class, 'ExportExcel'])->name('kepsek.karyawan.export');
             Route::get('form/addKaryawan', [KepsekKaryawanController::class, 'addKaryawan'])->name('kepsek.karyawan.add');
+            Route::post('form/addKaryawan', [KepsekKaryawanController::class, 'StoreKaryawan'])->name('kepsek.karyawan.store');
         });
 
         Route::prefix('laporan')->group(function () {

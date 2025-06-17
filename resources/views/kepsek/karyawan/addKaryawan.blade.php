@@ -48,7 +48,7 @@
         <div class="flex justify-between items-center mb-5">
             <p class="font-GabaritoRegular text-2xl">Data Pribadi</p>
         </div>
-        <form action="{{ route('admin.karyawan.store-karyawan') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('kepsek.karyawan.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <!-- Data Karyawan -->
             <table class="table-auto w-full text-sm text-left text-gray-700 border border-gray-200">

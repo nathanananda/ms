@@ -615,7 +615,7 @@ class KepsekKaryawanController extends Controller
                 // Generate nama acak dengan ekstensi asli
                 $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 // Simpan ke folder storage/app/profile
-                $path = $file->storeAs('profile', $filename);
+                $path = $file->storeAs('public/profile', $filename);
                 $dataKaryawan['foto'] = $filename;
             }
             $dataKaryawan['approval_karyawan'] = 2;

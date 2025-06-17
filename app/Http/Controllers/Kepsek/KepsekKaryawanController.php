@@ -531,7 +531,7 @@ class KepsekKaryawanController extends Controller
     public function StoreKaryawan(Request $request)
     {
 
-        validated = $request->validate([
+        $validated = $request->validate([
             // Tahap 1 - Data Pribadi
             'nama_lengkap' => 'required',
             'jenis_kelamin' => 'required',

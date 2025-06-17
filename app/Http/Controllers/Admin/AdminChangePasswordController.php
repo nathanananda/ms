@@ -11,7 +11,7 @@ class AdminChangePasswordController extends Controller
 {
     public function index()
     {
-        return view('user.change-pw');
+        return view('admin.change-pw');
     }
 
     public function StoreChangePass(Request $request)
@@ -37,7 +37,7 @@ class AdminChangePasswordController extends Controller
             $dataUser = User::find($user->id);
             $dataUser->password = Hash::make($request->new_password);
             $dataUser->save();
-            return redirect()->route('user.profile')->with('toast_success', 'Password berhasil diubah !');
+            return redirect()->route('admin.profile')->with('toast_success', 'Password berhasil diubah !');
         } catch (\Throwable $th) {
             return back()->with('toast_error', 'Password gagal diubah !');
         }
